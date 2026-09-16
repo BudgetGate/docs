@@ -1,6 +1,7 @@
 export default {
   title: 'BudgetGate',
   description: 'Soroban Resource Budget Guard',
+  base: '/docs/',
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
