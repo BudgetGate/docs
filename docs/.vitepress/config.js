@@ -14,7 +14,8 @@ export default {
           text: 'Core CLI',
           items: [
             { text: 'Introduction', link: '/core/' },
-            { text: 'API Reference', link: '/core/api-reference' }
+            { text: 'API Reference', link: '/core/api-reference' },
+            { text: 'In-Depth Documentation', link: '/core/documentation' }
           ]
         }
       ],
@@ -23,7 +24,8 @@ export default {
           text: 'GitHub Action',
           items: [
             { text: 'Introduction', link: '/action/' },
-            { text: 'Workflow Setup', link: '/action/setup' }
+            { text: 'Workflow Setup', link: '/action/setup' },
+            { text: 'In-Depth Documentation', link: '/action/documentation' }
           ]
         }
       ],
@@ -32,7 +34,8 @@ export default {
           text: 'Dashboard',
           items: [
             { text: 'Introduction', link: '/dashboard/' },
-            { text: 'Deployment', link: '/dashboard/deployment' }
+            { text: 'Deployment', link: '/dashboard/deployment' },
+            { text: 'In-Depth Documentation', link: '/dashboard/documentation' }
           ]
         }
       ]
