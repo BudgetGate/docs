@@ -7,11 +7,11 @@ hero:
   tagline: "Prevent accidental network limit breaches with continuous, PR-blocking CI checks for CPU, Memory, and Read/Write Bytes."
   actions:
     - theme: brand
-      text: Developer Guide
-      link: /developer-guide
+      text: Core CLI Docs
+      link: /core/
     - theme: alt
-      text: API Reference
-      link: /api-reference
+      text: Action Setup
+      link: /action/setup
   
 features:
   - title: The Problem (stellar-cli#1106)
