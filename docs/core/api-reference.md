@@ -10,8 +10,14 @@
 | `--rpc-url` | string | `https://soroban-testnet.stellar.org` | Soroban RPC endpoint used with `--fixture`. |
 | `--output-json` | string | — | Where to write the new snapshot. If it cannot be written, the run exits `2`. |
 | `--max-delta-pct` | float | `10` | A metric is a regression when it rises by more than this percentage. `0` turns the check off. |
+| `--max-cpu-increase` | int | `0` | A regression when CPU instructions rise by more than this many. `0` turns it off. |
+| `--max-read-bytes-increase` | int | `0` | Same for read bytes. |
+| `--max-write-bytes-increase` | int | `0` | Same for write bytes. |
+| `--max-read-entries-increase` | int | `0` | Same for read entries. |
+| `--max-write-entries-increase` | int | `0` | Same for write entries. |
+| `--cap-warning-pct` | float | `80` | Show `⚠️ CAP WARNING` when a metric is above this percentage of its built-in cap. `0` turns it off. |
 
-One of `--fixture` or `--new` is required.
+One of `--fixture` or `--new` is required. Negative threshold values are rejected with exit code `2`. A metric regresses if it breaks either its percentage limit or its absolute limit.
 
 ## Exit codes
 
@@ -98,8 +104,8 @@ Metrics compared: `CPUInstructions`, `ReadBytes`, `WriteBytes`, `ReadEntries`, `
 | Status | Meaning |
 |---|---|
 | `✅ OK` | Within the threshold. |
-| `❌ REGRESSION` | Rose by more than `--max-delta-pct`. Fails the run. |
-| `⚠️ CAP WARNING` | Above 80% of the built-in cap. Does not fail the run. |
+| `❌ REGRESSION` | Rose by more than `--max-delta-pct`, or by more than its `--max-*-increase` limit. Fails the run. |
+| `⚠️ CAP WARNING` | Above `--cap-warning-pct` (default 80%) of the built-in cap. Does not fail the run. |
 | `➖ NOT REPORTED` | Missing from the baseline or the new snapshot (for example, a baseline written before entry counts existed). |
 | `🆕 NEW` | The function is not in the baseline. The row shows its value and `% of Cap`; `Baseline`, `Delta` and `% Change` are `n/a`. Can carry `& ⚠️ CAP WARNING`. Never fails the run. |
 | `🗑️ REMOVED` | The function is in the baseline but not in the new snapshot. One row with `—` as the metric. Never fails the run. |

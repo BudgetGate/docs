@@ -41,11 +41,10 @@ delta    = new − baseline
 % change = delta / baseline × 100
 ```
 
-If the baseline value is `0` and the new value is higher, the change counts as 100%. A metric is a regression when `% change > --max-delta-pct`.
+If the baseline value is `0` and the new value is higher, the change counts as 100%. A metric is a regression when `% change > --max-delta-pct`, or when `delta` is above that metric's `--max-*-increase` limit. Absolute limits are per metric because the scales differ: CPU is in the hundreds of thousands, entry counts in single digits.
 
-The `% of Cap` column divides the new value by a built-in cap: 100,000,000 CPU instructions, 10,000,000 read bytes, 1,000,000 write bytes. These values have no documented source or protocol version and may not match the network's real limits. Entry counts have no cap and always show `0.00%`. Going above 80% of a cap shows a warning but never fails the run.
+The `% of Cap` column divides the new value by a built-in cap: 100,000,000 CPU instructions, 10,000,000 read bytes, 1,000,000 write bytes. These values have no documented source or protocol version and may not match the network's real limits. Entry counts have no cap and always show `0.00%`. Going above `--cap-warning-pct` (default 80%) of a cap shows a warning but never fails the run.
 
 ## Known limitations
 
 - `network`, `commit_sha` and `generated_at` in snapshots are placeholders.
-- Only one threshold is configurable; the cap warning level is fixed at 80%.
