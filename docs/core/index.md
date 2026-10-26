@@ -33,7 +33,7 @@ echo '{"schema_version":"2.0","functions":[]}' > empty.json
 ./budget-core --baseline empty.json --fixture fixture.json --output-json baseline.json
 ```
 
-The table is empty because there is nothing to compare against. `baseline.json` now holds the measured cost of every fixture entry.
+Every function is listed as `🆕 NEW`, with its measured values, because there is nothing to compare against yet. `baseline.json` now holds the measured cost of every fixture entry.
 
 ## Checking a change
 

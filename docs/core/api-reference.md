@@ -101,3 +101,7 @@ Metrics compared: `CPUInstructions`, `ReadBytes`, `WriteBytes`, `ReadEntries`, `
 | `❌ REGRESSION` | Rose by more than `--max-delta-pct`. Fails the run. |
 | `⚠️ CAP WARNING` | Above 80% of the built-in cap. Does not fail the run. |
 | `➖ NOT REPORTED` | Missing from the baseline or the new snapshot (for example, a baseline written before entry counts existed). |
+| `🆕 NEW` | The function is not in the baseline. The row shows its value and `% of Cap`; `Baseline`, `Delta` and `% Change` are `n/a`. Can carry `& ⚠️ CAP WARNING`. Never fails the run. |
+| `🗑️ REMOVED` | The function is in the baseline but not in the new snapshot. One row with `—` as the metric. Never fails the run. |
+
+A renamed function shows up as one `🆕 NEW` function and one `🗑️ REMOVED` function.
