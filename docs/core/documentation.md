@@ -47,5 +47,4 @@ The `% of Cap` column divides the new value by a built-in cap: 100,000,000 CPU i
 
 ## Known limitations
 
-- Functions that are only in the new snapshot, or only in the baseline, are skipped without a message.
 - `network`, `commit_sha` and `generated_at` in snapshots are placeholders.
