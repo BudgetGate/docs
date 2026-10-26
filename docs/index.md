@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "BudgetGate"
   text: "Soroban Resource Budget Guard"
-  tagline: "Prevent accidental network limit breaches with continuous, PR-blocking CI checks for CPU, Memory, and Read/Write Bytes."
+  tagline: "Measure Soroban contract resource cost with simulateTransaction and fail CI when it goes up."
   actions:
     - theme: brand
       text: Core CLI Docs
@@ -12,40 +12,36 @@ hero:
     - theme: alt
       text: Action Setup
       link: /action/setup
-  
+
 features:
-  - title: The Problem (stellar-cli#1106)
-    details: The official stellar-cli lacks persistent, PR-comment-based CI integration for preventing developers from accidentally merging code that breaches the 100M CPU / 40MB Memory protocol ceilings.
-  - title: Actionable Insights
-    details: Fails CI pipelines and outputs rich Markdown tables directly into GitHub Pull Requests when resources spike above absolute caps or delta baselines.
-  - title: Visual History
-    details: A Cyberpunk-styled Dashboard plots historical telemetry data directly from your cached GitHub snapshots.
+  - title: Measured, not estimated
+    details: Runs simulateTransaction against a Soroban RPC and records CPU instructions, read and write bytes, and footprint entry counts for each function in a fixture.
+  - title: Baseline comparison
+    details: Compares a new measurement with a stored baseline snapshot and exits non-zero when any metric rises more than a set percentage (10% by default).
+  - title: Why it exists
+    details: Soroban enforces resource limits at execution time, so only a simulation shows them. stellar-cli issue #1106 asks for this kind of CI check.
 ---
 
 # Welcome to BudgetGate
 
-BudgetGate is an end-to-end telemetry and CI/CD platform designed specifically for the **Soroban Smart Contract Ecosystem**. 
+BudgetGate is a CI regression checker for Soroban smart-contract resource cost. It simulates configured contract calls, saves the measured cost as a baseline snapshot, and flags a change when a function's cost goes up too much.
 
-When building complex smart contracts, developers often introduce subtle regressions (like inefficient loops or large memory allocations) that push the contract's execution cost beyond the strict limits of the Stellar network (such as the 100M CPU instruction cap). BudgetGate catches these spikes *before* they are merged into the main branch.
+It does not do static analysis or vulnerability scanning. For that, see [Scout-Soroban](https://github.com/CoinFabrik/scout-soroban).
+
+::: warning Status
+BudgetGate is early-stage software. It has not been audited and is not production-ready. There are no releases yet. The limitations of each part are listed on its pages.
+:::
 
 ## How it works
 
-```mermaid
-graph LR
-    A[GitHub PR] -->|Triggers| B(soroban-budget-action)
-    B -->|Executes| C{soroban-budget-core}
-    C -->|Simulates on Testnet| D[Stellar RPC]
-    D -->|Returns Metrics| C
-    C -->|Generates Diff| B
-    B -->|Posts Comment| A
-    B -->|Saves Snapshot| E[(Cache)]
-    E -->|Fetched by| F[soroban-budget-dashboard]
-```
+1. You write a **fixture**: a JSON file listing the contract calls to measure, each as a base64 transaction envelope XDR.
+2. **`soroban-budget-core`** simulates each call on a Soroban RPC (testnet by default) and builds a **snapshot** of the measured cost.
+3. It compares the snapshot with a **baseline** snapshot, prints a Markdown table, and exits `1` if any metric rose more than the threshold.
+4. **`soroban-budget-action`** runs core in a GitHub workflow and posts the table as a pull request comment.
+5. **`soroban-budget-dashboard`** charts a history of snapshots. Nothing produces that history automatically yet; see the [dashboard page](/dashboard/).
 
-## The Three Pillars
+## The three parts
 
-BudgetGate is divided into three interconnected repositories:
-
-1. **[Core CLI](/core/)**: The engine that parses XDR and interrogates the Soroban RPC.
-2. **[GitHub Action](/action/)**: The automation layer that runs the CLI in CI and caches the results.
-3. **[Dashboard](/dashboard/)**: The visual frontend for monitoring historical telemetry data.
+1. **[Core CLI](/core/)**: the Go CLI that simulates, measures and compares.
+2. **[GitHub Action](/action/)**: runs the CLI in CI and comments on pull requests.
+3. **[Dashboard](/dashboard/)**: a web app that charts snapshot history.
