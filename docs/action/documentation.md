@@ -4,8 +4,9 @@
 
 1. **Find the binary.** Uses `binary-path` if set. Otherwise, if `binary-version` is set, downloads `budget-core-linux-amd64` from the core release `v<version>` and caches it with `@actions/tool-cache`. Otherwise runs `./budget-core`.
 2. **Run core.** Always passes `--baseline`. With `fixture-path`, it adds `--fixture`, `--rpc-url` (if set) and `--output-json new.json`. Without it, it passes `--new` with `new-path`, or `new.json` if that is empty.
-3. **Comment.** On a pull request event, posts core's stdout as a new comment with a shields.io badge.
-4. **Save.** On a push to `main` or `master`, saves `new.json` to the Actions cache under the key `budgetgate-baseline-<sha>`.
+3. **Read the result** from core's exit code: `0` no regression, `1` regression, anything else means core could not compare. In that last case the step fails with core's error message, and nothing is commented or cached.
+4. **Comment.** On a pull request event, posts core's stdout as a new comment with a shields.io badge.
+5. **Save.** On a push to `main` or `master`, saves `new.json` to the Actions cache under the key `budgetgate-baseline-<sha>`.
 
 ## Inputs
 
@@ -23,7 +24,7 @@
 
 | Output | Description |
 |---|---|
-| `regression_detected` | `"true"` if core's report contains `❌ REGRESSION` or core exited non-zero, otherwise `"false"`. |
+| `regression_detected` | `"true"` if core exited `1` (a regression), otherwise `"false"`. Also `"false"` when core failed, so check the step's outcome too. |
 
 ## PR comment
 
@@ -31,7 +32,6 @@ The comment contains a heading, a "Passing" or "Regression Detected" badge, and 
 
 ## Known limitations
 
-- **Errors look like regressions.** Core exits `2` on errors and `1` only on a regression, but the Action treats any non-zero exit, including a missing baseline file or an RPC failure, as a regression. On an error core's stdout is empty, so the PR comment shows the heading and a "Regression Detected" badge with no table; core's error text appears only in the workflow log, as a warning.
 - **A comment on every run.** Each run posts a new comment; it does not update an earlier one.
 - **The saved baseline is never used.** `new.json` is saved to the cache on `main`, but nothing restores it. Pull requests still need a baseline file in the repository.
 - **Comment failures fail the step.** If the token cannot post comments (for example, on pull requests from forks), the step fails.
