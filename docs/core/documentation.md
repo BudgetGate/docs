@@ -63,4 +63,5 @@ Going above `--cap-warning-pct` (default 80%) of a cap shows a warning. It fails
 
 ## Known limitations
 
-- `network`, `commit_sha` and `generated_at` in snapshots are placeholders.
+- There are no releases yet: build core from source (see [Install](/core/#install)).
+- The repository still contains a prebuilt `budget-core` binary from an old version. It does not work; build your own.
