@@ -18,9 +18,10 @@ One of `--fixture` or `--new` is required.
 | Code | Meaning |
 |---|---|
 | `0` | No regression. |
-| `1` | A regression was found, **or** the run failed (bad flags, unreadable file, RPC error). |
+| `1` | A regression was found, **or** the run failed (missing flags, unreadable file, invalid JSON, RPC error). |
+| `2` | A snapshot has a missing or unsupported `schema_version`, or an undefined flag was passed. |
 
-Errors and progress messages are printed to stdout, together with the report.
+Errors and progress messages are printed to stdout, together with the report. The `schema_version` error is the exception: it goes to stderr.
 
 ## Fixture format
 
@@ -44,11 +45,13 @@ Errors and progress messages are printed to stdout, together with the report.
 
 ## Snapshot format
 
-Schema version `1.0`.
+Schema version `2.0`. Core writes `2.0` and reads `1.0` and `2.0` snapshots, as a baseline or with `--new`. A `1.0` baseline compares cleanly: its memory value is ignored, and missing entry counts show as `➖ NOT REPORTED`. Any other version, or none, stops the run with exit code `2`.
+
+Snapshots written before 2.0 existed say `1.0` even when they contain the newer fields. Version history: [`SCHEMA.md`](https://github.com/BudgetGate/soroban-budget-core/blob/main/SCHEMA.md#versions).
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "network": "testnet",
   "generated_at": "",
   "commit_sha": "dynamic",
