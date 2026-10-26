@@ -9,6 +9,7 @@
 | `--new` | string | — | Path to an existing snapshot JSON to compare instead of simulating. |
 | `--rpc-url` | string | `https://soroban-testnet.stellar.org` | Soroban RPC endpoint used with `--fixture`. |
 | `--output-json` | string | — | Where to write the new snapshot. If it cannot be written, the run exits `2`. |
+| `--commit-sha` | string | — | The commit of your contract code that was measured. Recorded in the snapshot's `commit_sha` (fixture runs). |
 | `--max-delta-pct` | float | `10` | A metric is a regression when it rises by more than this percentage. `0` turns the check off. |
 | `--max-cpu-increase` | int | `0` | A regression when CPU instructions rise by more than this many. `0` turns it off. |
 | `--max-read-bytes-increase` | int | `0` | Same for read bytes. |
@@ -60,8 +61,8 @@ Snapshots written before 2.0 existed say `1.0` even when they contain the newer 
 {
   "schema_version": "2.0",
   "network": "testnet",
-  "generated_at": "",
-  "commit_sha": "dynamic",
+  "generated_at": "2026-10-26T23:21:33Z",
+  "commit_sha": "7810b21f631ce73302472b915992957f1317eb8f",
   "functions": [
     {
       "name": "transfer_to_contract",
@@ -88,7 +89,13 @@ Snapshots written before 2.0 existed say `1.0` even when they contain the newer 
 | `write_entries` | Number of read-write footprint entries. |
 | `pct_of_network_cap` | The highest percentage of any metric's network cap that the function uses (here 1%: 2 write entries of 200). Filled in when the snapshot is measured from a fixture; `0` in older snapshots. |
 
-When core simulates a fixture, `network` is always `"testnet"`, `commit_sha` is always `"dynamic"` and `generated_at` is empty, whatever RPC you use.
+When core simulates a fixture, it fills in:
+
+- `network` from the RPC's network passphrase: `testnet`, `mainnet` or `futurenet`, or the passphrase itself for any other network;
+- `generated_at` with the time of the run, RFC 3339 in UTC;
+- `commit_sha` with the `--commit-sha` value, or `""` if you didn't pass one.
+
+Snapshots written by older versions of core have `"testnet"`, `""` and `"dynamic"` there, whatever network was used.
 
 ## Report
 
