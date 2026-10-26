@@ -31,7 +31,7 @@ The comment contains a heading, a "Passing" or "Regression Detected" badge, and 
 
 ## Known limitations
 
-- **Errors look like regressions.** Core exits `2` on errors and `1` only on a regression, but the Action treats any non-zero exit, including a missing baseline file or an RPC failure, as a regression. Core prints its errors to stdout, so the error text ends up in the PR comment.
+- **Errors look like regressions.** Core exits `2` on errors and `1` only on a regression, but the Action treats any non-zero exit, including a missing baseline file or an RPC failure, as a regression. On an error core's stdout is empty, so the PR comment shows the heading and a "Regression Detected" badge with no table; core's error text appears only in the workflow log, as a warning.
 - **A comment on every run.** Each run posts a new comment; it does not update an earlier one.
 - **The saved baseline is never used.** `new.json` is saved to the cache on `main`, but nothing restores it. Pull requests still need a baseline file in the repository.
 - **Comment failures fail the step.** If the token cannot post comments (for example, on pull requests from forks), the step fails.
