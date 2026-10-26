@@ -21,7 +21,7 @@ One of `--fixture` or `--new` is required.
 | `1` | At least one metric regressed. |
 | `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, or an RPC failure. |
 
-Errors and progress messages are printed to stdout, together with the report. The `schema_version` error is the exception: it goes to stderr.
+stdout carries only the Markdown report, so it can be redirected or posted as-is. Usage, progress and error messages go to stderr; on an error, stdout is empty.
 
 ## Fixture format
 
