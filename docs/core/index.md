@@ -45,6 +45,12 @@ After changing the contract, regenerate the fixture XDR if needed and compare ag
 
 The CLI exits `1` if any metric rose more than `--max-delta-pct` (default `10`). `new.json` can become the next baseline.
 
-`fixture.json` in the repository is a working example against testnet. Regenerate it with `go run ./cmd/genfixture > fixture.json` after a testnet reset.
+`testdata/fixture.json` in the repository is a working example against testnet, and `testdata/snapshot_testnet.json` is a snapshot core measured from it, so you can try the CLI without writing a fixture:
+
+```bash
+./budget-core --baseline testdata/snapshot_testnet.json --fixture testdata/fixture.json
+```
+
+After a testnet reset the fixture's account no longer exists; regenerate it with `go run ./cmd/genfixture > testdata/fixture.json`.
 
 See the [API & CLI Reference](/core/api-reference) for flags and file formats, and [In-Depth Documentation](/core/documentation) for how the numbers are measured.
