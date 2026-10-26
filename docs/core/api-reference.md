@@ -1,43 +1,100 @@
 # API & CLI Reference
 
-## Core CLI (`soroban-budget-core`)
-
-The core Go binary is the workhorse of BudgetGate. 
-
-### Flags
+## Flags
 
 | Flag | Type | Default | Description |
 |---|---|---|---|
-| `--fixture` | `string` | `""` | **Required.** Path to the JSON fixture defining the simulated transactions. |
-| `--output-json` | `string` | `""` | Path to save the resulting `snapshot.json`. Necessary for GitHub action caching. |
-| `--baseline` | `string` | `""` | Path to a previous `snapshot.json` to calculate regression deltas. |
-| `--max-delta-pct` | `float` | `10.0` | The maximum percentage increase allowed for any resource before failing the CI check. |
-| `--network` | `string` | `"testnet"` | The network limits to enforce (`testnet`, `mainnet`). Determines absolute caps. |
+| `--baseline` | string | — | **Required.** Path to the baseline snapshot JSON. |
+| `--fixture` | string | — | Path to a fixture JSON. Each entry is simulated over RPC. Takes precedence over `--new`. |
+| `--new` | string | — | Path to an existing snapshot JSON to compare instead of simulating. |
+| `--rpc-url` | string | `https://soroban-testnet.stellar.org` | Soroban RPC endpoint used with `--fixture`. |
+| `--output-json` | string | — | Where to write the new snapshot. |
+| `--max-delta-pct` | float | `10` | A metric is a regression when it rises by more than this percentage. `0` turns the check off. |
 
-### Request Shapes
+One of `--fixture` or `--new` is required.
 
-The JSON `fixture.json` expects the following schema:
-\`\`\`json
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | No regression. |
+| `1` | A regression was found, **or** the run failed (bad flags, unreadable file, RPC error). |
+
+Errors and progress messages are printed to stdout, together with the report.
+
+## Fixture format
+
+```json
 [
   {
-    "function_name": "mint",
+    "name": "balance_check",
+    "fixture_id": "test_balance",
     "xdr": "AAAAAgAAAA..."
   }
 ]
-\`\`\`
+```
 
-### Response Shapes
+| Field | Description |
+|---|---|
+| `name` | Function or test name. Snapshots are matched on this. |
+| `fixture_id` | Identifier copied into the snapshot. |
+| `xdr` | Base64 transaction envelope XDR that invokes the contract. |
 
-The tool outputs a \`snapshot.json\` conforming to:
-\`\`\`json
+`stellar contract invoke ... --build-only -- <function>` prints a suitable XDR.
+
+## Snapshot format
+
+Schema version `1.0`.
+
+```json
 {
-  "functions": {
-    "mint": {
-      "CPUInstructions": 10500,
-      "MemoryBytes": 2048,
-      "ReadBytes": 512,
-      "WriteBytes": 128
+  "schema_version": "1.0",
+  "network": "testnet",
+  "generated_at": "",
+  "commit_sha": "dynamic",
+  "functions": [
+    {
+      "name": "transfer_to_contract",
+      "fixture_id": "test_transfer_to_contract",
+      "cpu_instructions": 218663,
+      "memory_bytes": null,
+      "read_bytes": 144,
+      "write_bytes": 368,
+      "read_entries": 3,
+      "write_entries": 2,
+      "pct_of_network_cap": 0
     }
-  }
+  ]
 }
-\`\`\`
+```
+
+| Field | Description |
+|---|---|
+| `cpu_instructions` | Actual CPU instructions used (see [measurement](/core/documentation#cpu-instructions)). |
+| `memory_bytes` | `null` when the RPC does not report memory, which current RPCs do not. Not compared. |
+| `read_bytes` | The RPC's `diskReadBytes`. Does not include reads of live contract storage. |
+| `write_bytes` | Bytes written. |
+| `read_entries` | Number of ledger entries in the footprint (read-only plus read-write). |
+| `write_entries` | Number of read-write footprint entries. |
+| `pct_of_network_cap` | Not populated; always `0`. |
+
+When core simulates a fixture, `network` is always `"testnet"`, `commit_sha` is always `"dynamic"` and `generated_at` is empty, whatever RPC you use.
+
+## Report
+
+Core prints one row per function and metric:
+
+```
+| Function | Metric | Baseline | New | Delta | % Change | % of Cap | Status |
+|----------|--------|----------|-----|-------|----------|----------|--------|
+| balance_check | CPUInstructions | 91406 | 91406 | 0 | 0.00% | 0.09% | ✅ OK |
+```
+
+Metrics compared: `CPUInstructions`, `ReadBytes`, `WriteBytes`, `ReadEntries`, `WriteEntries`.
+
+| Status | Meaning |
+|---|---|
+| `✅ OK` | Within the threshold. |
+| `❌ REGRESSION` | Rose by more than `--max-delta-pct`. Fails the run. |
+| `⚠️ CAP WARNING` | Above 80% of the built-in cap. Does not fail the run. |
+| `➖ NOT REPORTED` | Missing from the baseline or the new snapshot (for example, a baseline written before entry counts existed). |

@@ -1,17 +1,18 @@
 # Core CLI (`soroban-budget-core`)
 
-The `soroban-budget-core` repository contains the Go-based CLI tool responsible for executing simulated transactions against a testnet/mainnet RPC to gather resource footprints. 
+`soroban-budget-core` is a Go CLI. It reads a fixture of contract calls, simulates each one with the Soroban RPC method `simulateTransaction`, compares the measured cost with a baseline snapshot, and prints the comparison as a Markdown table.
 
-It is designed to be fast, lightweight, and completely stateless. It does not require a database; it simply takes an XDR fixture as input, asks the Stellar network how much it would cost to execute, and outputs the result as a JSON file.
+It keeps no state of its own. Every run takes a baseline file and produces a new snapshot.
 
 ## Why a standalone CLI?
 
-By decoupling the simulation logic from the GitHub Action, we ensure that:
-1. Developers can run the exact same checks locally on their machines before pushing code.
-2. The core logic can be integrated into other CI/CD pipelines (e.g., GitLab CI, Jenkins) in the future.
-3. The XDR parsing and delta threshold calculations are centralized in a strongly-typed language (Go) for maximum safety and performance.
+- You can run the same check locally that CI runs.
+- Other CI systems can call it directly.
+- The measurement and comparison logic lives in one place.
 
-## Local Setup
+## Install
+
+There are no releases yet. Build from source with Go 1.25 or later:
 
 ```bash
 git clone https://github.com/BudgetGate/soroban-budget-core.git
@@ -19,14 +20,31 @@ cd soroban-budget-core
 go build -o budget-core .
 ```
 
-## Running the CLI
+::: warning
+The repository contains a committed `budget-core` binary. It predates the current code and does not work. Build your own as shown above.
+:::
 
-To run the CLI locally, you need to provide a JSON fixture containing the XDR representations of the contract calls you want to simulate.
+## First run
+
+`--baseline` is always required. For the first run, use an empty baseline and save the result as your real baseline:
 
 ```bash
-export RPC_URL="https://soroban-testnet.stellar.org"
-./budget-core --fixture ./test_fixture.json --output-json ./baseline.json --network testnet
+echo '{"schema_version":"1.0","functions":[]}' > empty.json
+./budget-core --baseline empty.json --fixture fixture.json --output-json baseline.json
 ```
 
-### Understanding the output
-The CLI will generate a `baseline.json` file. If you also provided a `--baseline` flag (pointing to a previous run's output), the CLI will compare the two and exit with a non-zero status code if the new run exceeds the old run's metrics by more than the `--max-delta-pct` threshold!
+The table is empty because there is nothing to compare against. `baseline.json` now holds the measured cost of every fixture entry.
+
+## Checking a change
+
+After changing the contract, regenerate the fixture XDR if needed and compare against the saved baseline:
+
+```bash
+./budget-core --baseline baseline.json --fixture fixture.json --output-json new.json
+```
+
+The CLI exits `1` if any metric rose more than `--max-delta-pct` (default `10`). `new.json` can become the next baseline.
+
+`fixture.json` in the repository is a working example against testnet. Regenerate it with `go run ./cmd/genfixture > fixture.json` after a testnet reset.
+
+See the [API & CLI Reference](/core/api-reference) for flags and file formats, and [In-Depth Documentation](/core/documentation) for how the numbers are measured.

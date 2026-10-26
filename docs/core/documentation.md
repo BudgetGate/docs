@@ -1,50 +1,56 @@
 # Soroban Budget Core - Documentation
 
-`soroban-budget-core` is a high-performance Go CLI tool designed to execute Soroban smart contracts, monitor their resource consumption (CPU instructions and Memory bytes), and detect regressions against a baseline.
+How `soroban-budget-core` measures cost, compares snapshots, and where it falls short today.
 
-## Architecture & Features
-*   **Dynamic Simulation**: Leverages Soroban RPC endpoints to dynamically trace transaction execution footprints.
-*   **Regression Engine**: Compares newly generated snapshots against predefined baseline JSON files.
-*   **Threshold Alerts**: Automatically detects and highlights resource spikes in `CPUInstructions`, `MemoryBytes`, `ReadBytes`, and `WriteBytes`.
+## Measurement
 
-## Deep Technical Details
+For each fixture entry, core calls `simulateTransaction` on the RPC and decodes the returned `transactionData` XDR with the Stellar Go SDK.
 
-### XDR Parsing
-The Go CLI interacts with the Soroban network by encoding and decoding Stellar XDR (External Data Representation). It utilizes the stellar/go SDK to strictly parse Base64 encoded transaction envelopes and simulation results.
-When fetching simulation data via RPC, the `result.transactionData` and `result.events` are received as base64-encoded XDR strings. The parser converts these into native Go structs representing `TransactionMeta`, extracting precise metrics for CPU Instructions and Memory usage injected by the Soroban environment. 
+### CPU instructions
 
-### Threshold Calculations
-Threshold calculations form the core of the Regression Engine. The engine takes two maps: `baseline` and `current`.
-For each resource (e.g., `CPUInstructions`), the algorithm calculates the delta: `Delta = Current - Baseline`.
-If `Delta > 0`, it computes the percentage increase: `Increase(%) = (Delta / Baseline) * 100`.
-A regression is flagged if the `Increase(%)` exceeds a user-defined threshold limit (default is 5%). This provides a safeguard against unnoticed efficiency degradations in smart contract code before deployment.
+The instruction count an RPC returns is what it recommends *declaring*, not what was used: actual usage plus `max(instructionLeeway, provider pad)`. On soroban-testnet the pad is 50,000, which hides real changes. A 10% increase in a function that uses 91,406 instructions shows up as about 6.5%.
 
-### Markdown Diff Formatting
-When the tool detects a regression or a successful check, it auto-generates a Markdown formatted table report. 
-It uses a built-in text templating engine to format rows aligned with standard GitHub Flavored Markdown (GFM) tables.
-Green checkmarks (`✅`) and Red crosses (`❌`) are dynamically inserted based on threshold validations. This makes the output instantly readable when piped to PR comments via GitHub Actions or GitLab CI.
+Core removes the pad by simulating each entry twice, with `instructionLeeway` set to 1,000,000 and to 2,000,000, and subtracting:
 
-## CLI Usage
-
-The tool operates by parsing JSON configurations and simulating smart contract executions on the testnet.
-
-### Flags
-*   `--baseline` *(required)*: Path to the baseline JSON snapshot file containing the historically acceptable resource costs.
-*   `--fixture` *(optional)*: Path to the JSON fixture file defining the contract execution parameters. If provided, the tool will dynamically run a simulation.
-*   `--new` *(optional)*: Path to a static JSON snapshot file to compare against the baseline. (Mutually exclusive with `--fixture`).
-*   `--rpc-url` *(optional)*: The Soroban RPC endpoint to use during dynamic simulations. Defaults to `https://soroban-testnet.stellar.org`.
-
-### Examples
-
-**Static File Comparison**
-```bash
-./budget-core --baseline ./history/base.json --new ./history/latest.json
+```
+actual = declared(1,000,000) − 1,000,000
 ```
 
-**Dynamic Fixture Execution**
-```bash
-./budget-core --baseline ./history/base.json --fixture ./fixtures/swap_test.json --rpc-url https://soroban-testnet.stellar.org
+It checks that the two declared values differ by exactly 1,000,000. If they don't, the provider pads some other way, and core stops with an error instead of reporting a wrong number. Each fixture entry therefore costs two RPC calls.
+
+### Read and write bytes
+
+`read_bytes` is the RPC's `diskReadBytes`. Since protocol 23, reads of live contract storage are not charged as disk reads, so **`read_bytes` does not change when a contract reads more of its own storage.** Use `read_entries` for that.
+
+`write_bytes` is the bytes written by the transaction.
+
+### Footprint entries
+
+`read_entries` is the number of ledger entries in the transaction's footprint (read-only plus read-write); `write_entries` is the number of read-write entries. They come from the decoded footprint and are the signal for added storage access.
+
+### Memory
+
+Current `simulateTransaction` responses do not report memory. `memory_bytes` is recorded as `null` and is not compared.
+
+## Comparison
+
+Functions are matched by `name`. For each compared metric:
+
+```
+delta    = new − baseline
+% change = delta / baseline × 100
 ```
 
-## Output
-The CLI automatically prints a markdown-formatted table to `stdout` detailing the differences. It exits with code `1` if a regression is detected, making it perfect for CI/CD environments.
+If the baseline value is `0` and the new value is higher, the change counts as 100%. A metric is a regression when `% change > --max-delta-pct`.
+
+The `% of Cap` column divides the new value by a built-in cap: 100,000,000 CPU instructions, 10,000,000 read bytes, 1,000,000 write bytes. These values have no documented source or protocol version and may not match the network's real limits. Entry counts have no cap and always show `0.00%`. Going above 80% of a cap shows a warning but never fails the run.
+
+## Known limitations
+
+- Runtime errors exit `1`, the same code as a regression.
+- Errors and progress text go to stdout, mixed with the report.
+- Functions that are only in the new snapshot, or only in the baseline, are skipped without a message.
+- `network`, `commit_sha` and `generated_at` in snapshots are placeholders.
+- Only one threshold is configurable; the cap warning level is fixed at 80%.
+- If writing `--output-json` fails, the error is ignored.
+- `schema_version` has not been bumped for added fields, and core does not check it when reading a baseline.

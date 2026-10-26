@@ -1,78 +1,37 @@
 # Soroban Budget Dashboard - Documentation
 
-`soroban-budget-dashboard` is the visual frontend for the BudgetGate ecosystem. It is a highly responsive, modern React/Vite application designed to visualize telemetry data and track Soroban smart contract resource consumption over time.
+## Stack
 
-## Architecture & Technology Stack
-*   **Framework**: React 19 + Vite + TypeScript.
-*   **Styling**: Tailwind CSS with heavily customized themes (Cyberpunk HUD design), utilizing custom utility classes like `glass-panel`, `glass-button-pink`, and CSS animations (`animate-pulse`, `ping`).
-*   **Data Fetching**: Powered by `@octokit/rest` for authenticated, dynamic retrieval of snapshot artifacts directly from GitHub repositories. 
-*   **Visualization**: Utilizes `recharts` for rendering complex gradient Area Charts to monitor CPU and Memory trends.
+React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` for GitHub access, and React Router.
 
-## Features
-*   **GitHub API Integration**: Paste a custom `github://owner/repo/branch/path` URL to dynamically render snapshot history from any public repository. 
-*   **Per-Function Drill Down**: Filter telemetry metrics down to specific smart contract vectors (e.g., tracking only the `swap` function).
-*   **Automated Regression Alerts**: The dashboard visually flashes warnings and calculates regression status if a resource spike exceeds baseline thresholds (>10%).
-*   **Demo Mode**: A built-in terminal simulator simulates a live `soroban-budget-core` execution and injects a mock regression spike.
+## Structure
 
----
+- `src/App.tsx`: routes `/` to `Dashboard` and `/docs` to `Docs`.
+- `src/pages/Dashboard.tsx`: the dashboard. Holds the loaded history, the selected function, the data source URL and the demo state.
+- `src/pages/Docs.tsx`: renders the repository's `DOCUMENTATION.md`.
+- `src/api.ts`: `fetchSnapshotHistory(url)` and the built-in sample history.
 
-## Detailed Implementation
+## Loading data
 
-### React Component Tree
-The application operates entirely within a single main component, `App.tsx`, minimizing prop-drilling while utilizing comprehensive internal state management. 
+`fetchSnapshotHistory` runs whenever the data source URL changes:
 
-1. **`App` (Root Component)**
-   * Manages the top-level state including `history` (the telemetry data), `loading`, `error`, `selectedFunction`, and the `dataSourceUrl`.
-   * **Header Section**: Contains the system title, a button to run the Demo, an input for configuring the data source URL (`github://...`), and visual indicators for network state.
-   * **Demo Terminal Modal**: Conditionally rendered based on `showDemoTerminal`. A stylized terminal simulator overlay that sequentially outputs logs during the simulated regression test.
-   * **Main Content Area**:
-     * **Telemetry Guide**: An informational section detailing the monitored metrics (CPU Instructions and Memory Bytes).
-     * **Status Cards**: A 3-column grid displaying:
-       1. `SYS.LATEST_COMMIT`: The SHA of the most recent tracked snapshot.
-       2. `SYS.REGRESSION_STATE`: A dynamic card that highlights green when "Clear" and pulses red if a regression (>10%) is detected.
-       3. `SYS.TRACKED_FNS`: A counter of total unique smart contract functions observed.
-     * **Charts Section**: Contains the Vector Filter dropdown and the Recharts-powered telemetry chart.
+- **No URL:** returns the built-in sample history after 500 ms.
+- **`github://owner/repo/branch/path`:** calls `repos.getContent` with an unauthenticated Octokit client and base64-decodes the file.
+- **Any other URL:** `fetch` and parse as JSON.
 
-### State Management
-State is managed heavily using React's built-in `useState`, `useEffect`, and `useMemo` hooks.
+Errors are shown in place of the charts.
 
-*   **Fetching State**: 
-    `history`, `loading`, and `error` store the primary telemetry state. `useEffect` binds to changes in `dataSourceUrl` and orchestrates data retrieval via `fetchSnapshotHistory`.
-*   **Derived State (`useMemo`)**:
-    *   `allFunctions`: Extrapolates a unique list of all function names across the entire dataset to populate the filter dropdown.
-    *   `chartData`: Iterates over the `history.snapshots`, reducing CPU and Memory footprints either in aggregate (`selectedFunction === 'all'`) or filtered to the specific function scope.
-    *   `regressionStatus`: Compares the `latestSnapshot` against the `previousSnapshot`. It iterates through functions and sets a "Regression Detected" flag if `cpu_instructions` has grown by more than 10%.
-*   **Demo State**: `demoLogs` array stores lines of output simulated by `setInterval`, culminating in appending a synthetic, heavily inflated snapshot payload into the main `history` state to test the UI's regression capabilities.
+## What the page shows
 
-### GitHub Octokit Base64 Parsing
-The `fetchSnapshotHistory` function inside `api.ts` handles the custom `github://` URI scheme.
+- **Latest commit:** `commit_sha` of the last snapshot.
+- **Regression state:** "Regression Detected" if any function's `cpu_instructions` in the last snapshot is more than 10% above the snapshot before it. Only CPU is checked, and the 10% is fixed.
+- **Tracked functions:** the number of distinct function names across all snapshots.
+- **Chart:** CPU instructions and memory bytes per snapshot, for all functions summed or for one selected function.
 
-1.  **Parsing**: It intercepts URIs like `github://owner/repo/branch/path/to/history.json`.
-2.  **API Call**: Initiates a request via `@octokit/rest` (`octokit.rest.repos.getContent`) using the extracted `owner`, `repo`, `path`, and `ref` (branch).
-3.  **Decoding**: GitHub's API returns raw file contents as a Base64-encoded string (`response.data.content`). The API client utilizes the native `atob()` function to decode the string back into standard text.
-4.  **Deserialization**: The decoded JSON string is parsed directly into the strongly-typed `SnapshotHistory` TypeScript interface.
+## Known limitations
 
-### Recharts Rendering Logic
-The visual core is implemented using an `<AreaChart>` component from the `recharts` library, wrapped in a `<ResponsiveContainer>` for dynamic resizing.
-
-*   **Data Binding**: Consumes the `chartData` array generated by `useMemo`.
-*   **X-Axis & Y-Axis**: Styled natively through `<XAxis>` and `<YAxis>`, masking grid lines, utilizing a monospace font, and formatting large numerical axes into "k" shorthand (e.g., `120k`).
-*   **Gradients (`<defs>`)**: SVG linear gradients (`colorCpu` and `colorMem`) are defined in `<defs>` to give the charts a faded bottom, anchoring the Cyberpunk aesthetic.
-*   **Area Layers**: The chart renders two stacked step-styled (`type="step"`) areas:
-    *   **CPU Instructions**: Uses the `#00ff9d` (Neon Green) theme color.
-    *   **Memory Bytes**: Uses the `#ff0080` (Hot Pink) theme color.
-*   **Custom Tooltip**: An intricate, heavily stylized standard `recharts` `<Tooltip>` renders specific exact metric integers overlaid onto a glassmorphism panel.
-
-## Development Setup
-
-To run the dashboard locally and tweak its Cyberpunk UI:
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start the Vite development server
-npm run dev
-```
-
-The application will hot-reload on `localhost:5173`.
+- Read bytes, write bytes and footprint entry counts are not charted.
+- Core records `memory_bytes` as `null` because current RPCs do not report it. In the all-functions view, `null` is summed as 0, so memory shows as 0 for real data.
+- Sample data and demo snapshots are not labelled as such in the UI.
+- GitHub API rate limits (403/429) appear only as a generic error.
+- The dashboard does not check `schema_version`.
