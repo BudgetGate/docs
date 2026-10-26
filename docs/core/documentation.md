@@ -64,4 +64,3 @@ Going above `--cap-warning-pct` (default 80%) of a cap shows a warning. It fails
 ## Known limitations
 
 - There are no releases yet: build core from source (see [Install](/core/#install)).
-- The repository still contains a prebuilt `budget-core` binary from an old version. It does not work; build your own.

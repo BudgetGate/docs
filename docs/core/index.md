@@ -20,10 +20,6 @@ cd soroban-budget-core
 go build -o budget-core .
 ```
 
-::: warning
-The repository contains a committed `budget-core` binary. It predates the current code and does not work. Build your own as shown above.
-:::
-
 ## First run
 
 `--baseline` is always required. For the first run, use an empty baseline and save the result as your real baseline:
