@@ -17,9 +17,9 @@ One of `--fixture` or `--new` is required.
 
 | Code | Meaning |
 |---|---|
-| `0` | No regression. |
-| `1` | A regression was found, **or** the run failed (missing flags, unreadable file, invalid JSON, RPC error). |
-| `2` | A snapshot has a missing or unsupported `schema_version`, or an undefined flag was passed. |
+| `0` | No regression. Also `-h`. |
+| `1` | At least one metric regressed. |
+| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, or an RPC failure. |
 
 Errors and progress messages are printed to stdout, together with the report. The `schema_version` error is the exception: it goes to stderr.
 
