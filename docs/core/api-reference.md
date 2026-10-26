@@ -8,7 +8,7 @@
 | `--fixture` | string | — | Path to a fixture JSON. Each entry is simulated over RPC. Takes precedence over `--new`. |
 | `--new` | string | — | Path to an existing snapshot JSON to compare instead of simulating. |
 | `--rpc-url` | string | `https://soroban-testnet.stellar.org` | Soroban RPC endpoint used with `--fixture`. |
-| `--output-json` | string | — | Where to write the new snapshot. |
+| `--output-json` | string | — | Where to write the new snapshot. If it cannot be written, the run exits `2`. |
 | `--max-delta-pct` | float | `10` | A metric is a regression when it rises by more than this percentage. `0` turns the check off. |
 
 One of `--fixture` or `--new` is required.
@@ -19,9 +19,9 @@ One of `--fixture` or `--new` is required.
 |---|---|
 | `0` | No regression. Also `-h`. |
 | `1` | At least one metric regressed. |
-| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, or an RPC failure. |
+| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, an RPC failure, or a `--output-json` file that could not be written. |
 
-stdout carries only the Markdown report, so it can be redirected or posted as-is. Usage, progress and error messages go to stderr; on an error, stdout is empty.
+stdout carries only the Markdown report, so it can be redirected or posted as-is. Usage, progress and error messages go to stderr; on an error, stdout is empty, except when only writing `--output-json` failed: the report is printed first, then the run exits `2`.
 
 ## Fixture format
 
