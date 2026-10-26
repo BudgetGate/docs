@@ -53,4 +53,3 @@ The `% of Cap` column divides the new value by a built-in cap: 100,000,000 CPU i
 - `network`, `commit_sha` and `generated_at` in snapshots are placeholders.
 - Only one threshold is configurable; the cap warning level is fixed at 80%.
 - If writing `--output-json` fails, the error is ignored.
-- `schema_version` has not been bumped for added fields, and core does not check it when reading a baseline.

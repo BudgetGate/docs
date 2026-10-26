@@ -29,7 +29,7 @@ The repository contains a committed `budget-core` binary. It predates the curren
 `--baseline` is always required. For the first run, use an empty baseline and save the result as your real baseline:
 
 ```bash
-echo '{"schema_version":"1.0","functions":[]}' > empty.json
+echo '{"schema_version":"2.0","functions":[]}' > empty.json
 ./budget-core --baseline empty.json --fixture fixture.json --output-json baseline.json
 ```
 
