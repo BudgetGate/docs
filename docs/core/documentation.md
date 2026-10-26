@@ -43,7 +43,23 @@ delta    = new − baseline
 
 If the baseline value is `0` and the new value is higher, the change counts as 100%. A metric is a regression when `% change > --max-delta-pct`, or when `delta` is above that metric's `--max-*-increase` limit. Absolute limits are per metric because the scales differ: CPU is in the hundreds of thousands, entry counts in single digits.
 
-The `% of Cap` column divides the new value by a built-in cap: 100,000,000 CPU instructions, 10,000,000 read bytes, 1,000,000 write bytes. These values have no documented source or protocol version and may not match the network's real limits. Entry counts have no cap and always show `0.00%`. Going above `--cap-warning-pct` (default 80%) of a cap shows a warning but never fails the run.
+### Network caps
+
+The `% of Cap` column divides the new value by the network's per-transaction limit for that metric. Core reads the limits from `--rpc-url` on every run, with one `getLedgerEntries` call for the network's config settings and one `getNetwork` call for the protocol version, so they follow protocol upgrades and match the network you test against. Nothing is hardcoded.
+
+| Metric | Network limit | Testnet, protocol 29 |
+|---|---|---|
+| CPUInstructions | `txMaxInstructions` | 400,000,000 |
+| ReadBytes | `txMaxDiskReadBytes` | 200,000 |
+| WriteBytes | `txMaxWriteBytes` | 132,096 |
+| ReadEntries | `txMaxFootprintEntries` | 400 |
+| WriteEntries | `txMaxWriteLedgerEntries` | 200 |
+
+`read_entries` counts every footprint entry, so its limit is the footprint limit, not the disk-read-entries limit.
+
+If the limits can't be read, the run stops with exit code `2`; core never falls back to built-in numbers. A `--new` run with `--cap-warning-pct 0` skips the lookup and needs no network; `% of Cap` then shows `n/a`.
+
+Going above `--cap-warning-pct` (default 80%) of a cap shows a warning. It fails the run only with `--fail-on-cap-warning`. A transaction over a real limit is expected to fail in simulation itself, which core reports as an error (exit `2`).
 
 ## Known limitations
 

@@ -15,7 +15,8 @@
 | `--max-write-bytes-increase` | int | `0` | Same for write bytes. |
 | `--max-read-entries-increase` | int | `0` | Same for read entries. |
 | `--max-write-entries-increase` | int | `0` | Same for write entries. |
-| `--cap-warning-pct` | float | `80` | Show `⚠️ CAP WARNING` when a metric is above this percentage of its built-in cap. `0` turns it off. |
+| `--cap-warning-pct` | float | `80` | Show `⚠️ CAP WARNING` when a metric is above this percentage of the network's per-transaction cap. `0` turns it off. |
+| `--fail-on-cap-warning` | bool | off | Exit `1` when any metric has a cap warning. Needs `--cap-warning-pct` above `0`. |
 
 One of `--fixture` or `--new` is required. Negative threshold values are rejected with exit code `2`. A metric regresses if it breaks either its percentage limit or its absolute limit.
 
@@ -24,7 +25,7 @@ One of `--fixture` or `--new` is required. Negative threshold values are rejecte
 | Code | Meaning |
 |---|---|
 | `0` | No regression. Also `-h`. |
-| `1` | At least one metric regressed. |
+| `1` | At least one metric regressed, or a cap warning with `--fail-on-cap-warning`. |
 | `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, an RPC failure, or a `--output-json` file that could not be written. |
 
 stdout carries only the Markdown report, so it can be redirected or posted as-is. Usage, progress and error messages go to stderr; on an error, stdout is empty, except when only writing `--output-json` failed: the report is printed first, then the run exits `2`.
@@ -71,7 +72,7 @@ Snapshots written before 2.0 existed say `1.0` even when they contain the newer 
       "write_bytes": 368,
       "read_entries": 3,
       "write_entries": 2,
-      "pct_of_network_cap": 0
+      "pct_of_network_cap": 1
     }
   ]
 }
@@ -85,7 +86,7 @@ Snapshots written before 2.0 existed say `1.0` even when they contain the newer 
 | `write_bytes` | Bytes written. |
 | `read_entries` | Number of ledger entries in the footprint (read-only plus read-write). |
 | `write_entries` | Number of read-write footprint entries. |
-| `pct_of_network_cap` | Not populated; always `0`. |
+| `pct_of_network_cap` | The highest percentage of any metric's network cap that the function uses (here 1%: 2 write entries of 200). Filled in when the snapshot is measured from a fixture; `0` in older snapshots. |
 
 When core simulates a fixture, `network` is always `"testnet"`, `commit_sha` is always `"dynamic"` and `generated_at` is empty, whatever RPC you use.
 
@@ -96,8 +97,12 @@ Core prints one row per function and metric:
 ```
 | Function | Metric | Baseline | New | Delta | % Change | % of Cap | Status |
 |----------|--------|----------|-----|-------|----------|----------|--------|
-| balance_check | CPUInstructions | 91406 | 91406 | 0 | 0.00% | 0.09% | ✅ OK |
+| balance_check | CPUInstructions | 91406 | 91406 | 0 | 0.00% | 0.02% | ✅ OK |
+
+% of Cap uses the network's per-transaction limits at protocol 29, ledger 5406551.
 ```
+
+The last line names the protocol version and ledger the caps were read at. It is left out when caps were not read, and `% of Cap` then shows `n/a`.
 
 Metrics compared: `CPUInstructions`, `ReadBytes`, `WriteBytes`, `ReadEntries`, `WriteEntries`.
 
@@ -105,7 +110,7 @@ Metrics compared: `CPUInstructions`, `ReadBytes`, `WriteBytes`, `ReadEntries`, `
 |---|---|
 | `✅ OK` | Within the threshold. |
 | `❌ REGRESSION` | Rose by more than `--max-delta-pct`, or by more than its `--max-*-increase` limit. Fails the run. |
-| `⚠️ CAP WARNING` | Above `--cap-warning-pct` (default 80%) of the built-in cap. Does not fail the run. |
+| `⚠️ CAP WARNING` | Above `--cap-warning-pct` (default 80%) of the network's cap. Fails the run only with `--fail-on-cap-warning`. |
 | `➖ NOT REPORTED` | Missing from the baseline or the new snapshot (for example, a baseline written before entry counts existed). |
 | `🆕 NEW` | The function is not in the baseline. The row shows its value and `% of Cap`; `Baseline`, `Delta` and `% Change` are `n/a`. Can carry `& ⚠️ CAP WARNING`. Never fails the run. |
 | `🗑️ REMOVED` | The function is in the baseline but not in the new snapshot. One row with `—` as the metric. Never fails the run. |
