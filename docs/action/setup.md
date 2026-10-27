@@ -1,6 +1,6 @@
 # Workflow Setup
 
-Core has no releases yet, so the workflow builds it from source and passes the binary to the Action with `binary-path`.
+This workflow builds core from source and passes the binary to the Action with `binary-path`. Core v0.2.0 is now released, so on Linux x86-64 runners `binary-version: 0.2.0` can replace the build steps; this page will switch to it once that has been run in a real workflow.
 
 You need a [fixture](/core/api-reference#fixture-format) in your repository, for example `budget/fixture.json`.
 

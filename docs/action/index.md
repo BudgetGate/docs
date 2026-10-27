@@ -11,5 +11,5 @@
 - Keeps the baseline for you: each push to the default branch saves the measured snapshot to the Actions cache, and pull requests compare against it. A committed baseline file can be used instead.
 
 ::: warning Status
-There are no releases of the Action or of core yet, and the `binary-version` input cannot work until core publishes one. See [Workflow Setup](/action/setup) for a workflow that builds core from source.
+Core v0.2.0 is released, and `binary-version: 0.2.0` downloads it on Linux x86-64 runners (checked in a local run of the Action, not yet in a real workflow). The Action itself has no release yet. See [Workflow Setup](/action/setup) for a workflow that builds core from source.
 :::

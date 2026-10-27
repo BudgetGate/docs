@@ -12,7 +12,20 @@ It keeps no state of its own. Every run takes a baseline file and produces a new
 
 ## Install
 
-There are no releases yet. Build from source with Go 1.25 or later:
+### Download a release
+
+[v0.2.0](https://github.com/BudgetGate/soroban-budget-core/releases/tag/v0.2.0) is the first release. It contains a static Linux x86-64 binary and a checksum file:
+
+```bash
+curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.0/budget-core-linux-amd64
+curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.0/SHA256SUMS
+sha256sum -c SHA256SUMS
+chmod +x budget-core-linux-amd64 && mv budget-core-linux-amd64 budget-core
+```
+
+### Build from source
+
+On other platforms, build with Go 1.25 or later:
 
 ```bash
 git clone https://github.com/BudgetGate/soroban-budget-core.git

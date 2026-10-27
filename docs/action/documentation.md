@@ -19,7 +19,7 @@
 | `new-path` | No | `new.json` | Existing snapshot to compare when no fixture is given. |
 | `rpc-url` | No | core's default (testnet) | RPC endpoint, used only with `fixture-path`. |
 | `binary-path` | No | `./budget-core` | Path to a `budget-core` binary. |
-| `binary-version` | No | — | Core release to download. Fails today: core has no releases. |
+| `binary-version` | No | — | Core release to download, for example `0.2.0` (the first release). Releases only contain `budget-core-linux-amd64`, so this works on Linux x86-64 runners only. The download is not checked against the release's `SHA256SUMS`. |
 
 ## Outputs
 
