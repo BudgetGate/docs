@@ -1,14 +1,13 @@
 {
   "name": "budgetgate-docs",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "docs:build": "vitepress build docs", "docs:dev": "vitepress dev docs"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Budget Gate",
+  "license": "MIT",
+  "description": "User documentation for Budget Gate (soroban-budget-core, soroban-budget-action, soroban-budget-dashboard), built with VitePress.",
   "devDependencies": {
     "vitepress": "^1.6.4",
     "vue": "^3.5.42"
