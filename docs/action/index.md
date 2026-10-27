@@ -5,7 +5,7 @@
 ## What it does
 
 - Runs core with your baseline and either a fixture (simulated over RPC) or an existing snapshot.
-- On a pull request, posts the report table as a comment with a pass/fail badge.
+- On a pull request, keeps one comment with the report table and a pass/fail badge, updated on every run.
 - Sets the `regression_detected` output and fails the step on a regression (core exit `1`).
 - Fails the step with core's error message, without commenting, when core can't compare (exit `2`).
 - On a push to `main` or `master`, saves `new.json` to the Actions cache.
