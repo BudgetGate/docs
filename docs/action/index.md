@@ -8,7 +8,7 @@
 - On a pull request, keeps one comment with the report table and a pass/fail badge, updated on every run.
 - Sets the `regression_detected` output and fails the step on a regression (core exit `1`).
 - Fails the step with core's error message, without commenting, when core can't compare (exit `2`).
-- On a push to `main` or `master`, saves `new.json` to the Actions cache.
+- Keeps the baseline for you: each push to the default branch saves the measured snapshot to the Actions cache, and pull requests compare against it. A committed baseline file can be used instead.
 
 ::: warning Status
 There are no releases of the Action or of core yet, and the `binary-version` input cannot work until core publishes one. See [Workflow Setup](/action/setup) for a workflow that builds core from source.
