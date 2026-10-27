@@ -6,9 +6,8 @@ React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` f
 
 ## Structure
 
-- `src/App.tsx`: routes `/` to `Dashboard` and `/docs` to `Docs`.
+- `src/App.tsx`: routes `/` to `Dashboard`.
 - `src/pages/Dashboard.tsx`: the dashboard. Holds the loaded history, the selected function, the data source URL and the demo state.
-- `src/pages/Docs.tsx`: renders the repository's `DOCUMENTATION.md`.
 - `src/api.ts`: `fetchSnapshotHistory(url)` and the built-in sample history.
 
 ## Loading data
