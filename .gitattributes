@@ -1,0 +1,3 @@
+# Check text files out with LF on every OS. Without this, git on Windows with
+# core.autocrlf=true warns "LF will be replaced by CRLF" on every commit.
+* text=auto eol=lf
