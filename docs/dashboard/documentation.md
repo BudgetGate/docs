@@ -7,7 +7,7 @@ React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` f
 ## Structure
 
 - `src/App.tsx`: routes `/` to `Dashboard`.
-- `src/pages/Dashboard.tsx`: the dashboard. Holds the loaded history, the selected function, the data source URL and the demo state.
+- `src/pages/Dashboard.tsx`: the dashboard. Holds the loaded history, the selected function and the data source URL.
 - `src/api.ts`: `fetchSnapshotHistory(url)` and the built-in sample history.
 - `src/metrics.ts`: turns snapshots into chart points, one value per metric per snapshot.
 - `src/components/MetricChart.tsx`: one chart per unit.
@@ -16,7 +16,7 @@ React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` f
 
 `fetchSnapshotHistory` runs whenever the data source URL changes:
 
-- **No URL:** returns the built-in sample history after 500 ms.
+- **No URL:** returns the built-in sample history after 500 ms. The page shows a **Sample data** note above it saying the numbers are examples, not measurements; the note goes away once a data source URL is applied.
 - **`github://owner/repo/branch/path`:** calls `repos.getContent` with an unauthenticated Octokit client and base64-decodes the file.
 - **Any other URL:** `fetch` and parse as JSON.
 
@@ -42,5 +42,4 @@ Other errors are shown in place of the charts.
 
 ## Known limitations
 
-- Sample data and demo snapshots are not labelled as such in the UI.
 - Results are not cached, and entering the same URL again does not reload it.

@@ -4,8 +4,8 @@
 
 The deployed app is at [budgetgate-dashboard.vercel.app](https://budgetgate-dashboard.vercel.app/).
 
-::: warning The numbers you see are sample data
-Until you enter a data source URL, the dashboard shows built-in sample snapshots, and the page does not label them as sample data. The "demo" button adds a made-up snapshot with CPU raised 25% and memory 15%. Neither is a real measurement.
+::: info Sample data until you load your own
+Until you enter a data source URL, the dashboard shows built-in sample snapshots under a **Sample data** note. They are examples, not measurements of any contract.
 :::
 
 ## Data source
