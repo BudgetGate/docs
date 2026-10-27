@@ -20,7 +20,11 @@ React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` f
 - **`github://owner/repo/branch/path`:** calls `repos.getContent` with an unauthenticated Octokit client and base64-decodes the file.
 - **Any other URL:** `fetch` and parse as JSON.
 
-Errors are shown in place of the charts.
+Every history, including the built-in sample, is checked before anything is drawn. It must be an object with a `snapshots` array, and each snapshot must be an object with a `schema_version` of `1.0` or `2.0` (the versions core reads) and a `functions` array. Otherwise the page shows an error naming the snapshot and its commit, for example `Snapshot 2 (commit v2count) has schema_version "3.0", which this dashboard does not support. Supported versions: 1.0, 2.0.` The dashboard does not try to read a version it does not know.
+
+A 403 or 429 response is shown as **RATE_LIMITED** instead of an error when GitHub's rate-limit rules apply: `x-ratelimit-remaining` is `0`, `retry-after` is set, the status is 429, or the message names a rate limit. The page shows when to try again, taken from `x-ratelimit-reset` or `retry-after`, if the response gave one. Any other 403 is shown as an error. Requests are not retried automatically.
+
+Other errors are shown in place of the charts.
 
 ## What the page shows
 
@@ -39,5 +43,4 @@ Errors are shown in place of the charts.
 ## Known limitations
 
 - Sample data and demo snapshots are not labelled as such in the UI.
-- GitHub API rate limits (403/429) appear only as a generic error.
-- The dashboard does not check `schema_version`.
+- Results are not cached, and entering the same URL again does not reload it.

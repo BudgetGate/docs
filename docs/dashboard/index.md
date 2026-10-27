@@ -15,7 +15,7 @@ Enter a URL in the `DATASOURCE_URL` box. Two forms are accepted:
 - `https://...`: any URL that returns the history JSON.
 - `github://owner/repo/branch/path/to/history.json`: a file read from a public GitHub repository through the GitHub REST API, without authentication. Unauthenticated requests are limited to 60 per hour per IP address.
 
-The file must be a history: an object with a `snapshots` array, each entry a [core snapshot](/core/api-reference#snapshot-format).
+The file must be a history: an object with a `snapshots` array, each entry a [core snapshot](/core/api-reference#snapshot-format) with `schema_version` `1.0` or `2.0`. Any other version is rejected with an error. When GitHub rate-limits the request, the page says so and shows when to try again.
 
 ```json
 { "snapshots": [ { "schema_version": "1.0", "commit_sha": "…", "functions": [ … ] } ] }
