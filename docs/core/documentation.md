@@ -63,4 +63,4 @@ Going above `--cap-warning-pct` (default 80%) of a cap shows a warning. It fails
 
 ## Known limitations
 
-- There are no releases yet: build core from source (see [Install](/core/#install)).
+- Releases only include a Linux x86-64 binary. On other platforms, build core from source (see [Install](/core/#install)).
