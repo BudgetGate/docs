@@ -21,8 +21,10 @@ The file must be a history: an object with a `snapshots` array, each entry a [co
 { "snapshots": [ { "schema_version": "1.0", "commit_sha": "…", "functions": [ … ] } ] }
 ```
 
+The [GitHub Action](/action/documentation#snapshot-history) writes this file when its `history-branch` input is set. For a public repository, use `https://raw.githubusercontent.com/<owner>/<repo>/budgetgate-history/history.json`. GitHub serves raw files to browsers on other sites and may cache them for up to 5 minutes.
+
 ::: warning
-Nothing in BudgetGate produces this history file yet. Core writes one snapshot per run, and the Action saves it to the Actions cache, which the dashboard cannot read. You have to build the file yourself from saved snapshots.
+`history-branch` is in the Action's `main` but not in a release yet. Private repositories cannot be read: the dashboard has no token.
 :::
 
 ## Local development
