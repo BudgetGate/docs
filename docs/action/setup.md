@@ -1,6 +1,6 @@
 # Workflow Setup
 
-This workflow builds core from source and passes the binary to the Action with `binary-path`. Core v0.2.0 is now released, so on Linux x86-64 runners `binary-version: 0.2.0` can replace the build steps; this page will switch to it once that has been run in a real workflow.
+The Action downloads core's v0.2.0 release with `binary-version: 0.2.0` and checks it against the release's `SHA256SUMS`. Releases only contain a Linux x86-64 binary, so use an `ubuntu-latest` runner (or see [Building core yourself](#building-core-yourself)).
 
 You need a [fixture](/core/api-reference#fixture-format) in your repository, for example `budget/fixture.json`.
 
@@ -24,6 +24,35 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Run Soroban Budget Guard
+        uses: BudgetGate/soroban-budget-action@main
+        with:
+          fixture-path: budget/fixture.json
+          binary-version: 0.2.0
+```
+
+`@main` follows the Action's latest code; the Action has no release yet. Pin a commit SHA if you need a fixed version.
+
+Until the first push to the default branch has run, there is no baseline: the PR comment says so, and every function is shown as `🆕 NEW`.
+
+## Committing the baseline instead
+
+If you'd rather keep the baseline in the repository, create it locally as shown in [First run](/core/#first-run), commit it, and pass its path:
+
+```yaml
+        with:
+          binary-version: 0.2.0
+          baseline-path: budget/baseline.json
+          fixture-path: budget/fixture.json
+```
+
+A baseline file that exists always wins over the cache. To update it after an intended cost change, rerun core locally with `--output-json budget/baseline.json` and commit the result.
+
+## Building core yourself
+
+On a runner other than Linux x86-64, or to run core's latest code, build it and pass its path with `binary-path` instead of `binary-version`:
+
+```yaml
       - uses: actions/setup-go@v7
         with:
           go-version: '1.25'
@@ -40,23 +69,6 @@ jobs:
           fixture-path: budget/fixture.json
 ```
 
-`@main` follows the Action's latest code. Pin a commit SHA if you need a fixed version.
+## Tested
 
-Until the first push to the default branch has run, there is no baseline: the PR comment says so, and every function is shown as `🆕 NEW`.
-
-## Committing the baseline instead
-
-If you'd rather keep the baseline in the repository, create it locally as shown in [First run](/core/#first-run), commit it, and pass its path:
-
-```yaml
-        with:
-          binary-path: ${{ runner.temp }}/core/budget-core
-          baseline-path: budget/baseline.json
-          fixture-path: budget/fixture.json
-```
-
-A baseline file that exists always wins over the cache. To update it after an intended cost change, rerun core locally with `--output-json budget/baseline.json` and commit the result.
-
-::: warning
-This workflow has not yet been tested end-to-end in a separate repository, and the cache round trip (save on a push, restore on a pull request) has not yet run on GitHub.
-:::
+This setup has run on GitHub in [BudgetGate/budgetgate-action-test](https://github.com/BudgetGate/budgetgate-action-test) (2026-10-28): a push to `main` downloaded core v0.2.0, saved the baseline and wrote the history; pull requests restored that baseline from the cache, posted a regression report for a contract whose cost went up, updated the same comment on the next push, and replaced it with "The latest run failed" when core could not run. The `binary-path` variant above has not been run there.
