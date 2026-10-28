@@ -24,7 +24,7 @@ The file must be a history: an object with a `snapshots` array, each entry a [co
 The [GitHub Action](/action/documentation#snapshot-history) writes this file when its `history-branch` input is set. For a public repository, use `https://raw.githubusercontent.com/<owner>/<repo>/budgetgate-history/history.json`. GitHub serves raw files to browsers on other sites and may cache them for up to 5 minutes.
 
 ::: warning
-`history-branch` is in the Action's `main` but not in a release yet. Private repositories cannot be read: the dashboard has no token.
+`history-branch` is in the Action since `v0.2.0`. Private repositories cannot be read: the dashboard has no token.
 :::
 
 ## Local development
