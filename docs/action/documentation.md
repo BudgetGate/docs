@@ -2,7 +2,7 @@
 
 ## How it works
 
-1. **Find the binary.** Uses `binary-path` if set. Otherwise, if `binary-version` is set, downloads `budget-core-linux-amd64` from the core release `v<version>` and caches it with `@actions/tool-cache`. Otherwise runs `./budget-core`.
+1. **Find the binary.** Uses `binary-path` if set. Otherwise, if `binary-version` is set, downloads `budget-core-linux-amd64` and `SHA256SUMS` from the core release `v<version>`, fails the step if the binary's SHA-256 is missing from `SHA256SUMS` or differs from it, and caches it with `@actions/tool-cache`. On a runner that is not Linux x64 it fails before downloading, because releases contain no other binary. Otherwise runs `./budget-core`.
 2. **Pick the baseline.** A file at `baseline-path`, if it exists. Otherwise the snapshot saved in the Actions cache for the PR's base commit, or the most recent one. Otherwise an empty baseline: every function shows as `🆕 NEW` and the PR comment says no baseline was found.
 3. **Run core.** Passes `--baseline` with the baseline from step 2. With `fixture-path`, it adds `--fixture`, `--rpc-url` (if set) and `--output-json new.json`. Without it, it passes `--new` with `new-path`, or `new.json` if that is empty.
 4. **Read the result** from core's exit code: `0` no regression, `1` regression, anything else means core could not compare. In that last case the step fails with core's error message, nothing is cached, and on a pull request the comment is replaced with a "latest run failed" note (see below).
@@ -19,7 +19,7 @@
 | `new-path` | No | `new.json` | Existing snapshot to compare when no fixture is given. |
 | `rpc-url` | No | core's default (testnet) | RPC endpoint, used only with `fixture-path`. |
 | `binary-path` | No | `./budget-core` | Path to a `budget-core` binary. |
-| `binary-version` | No | — | Core release to download, for example `0.2.0` (the first release). Releases only contain `budget-core-linux-amd64`, so this works on Linux x86-64 runners only. The download is not checked against the release's `SHA256SUMS`. |
+| `binary-version` | No | — | Core release to download, for example `0.2.0` (the first release). Releases only contain `budget-core-linux-amd64`, so other runners fail with a message to use `binary-path`. The download is checked against the release's `SHA256SUMS`. |
 
 ## Outputs
 
