@@ -19,7 +19,7 @@ React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` f
 `fetchSnapshotHistory` runs whenever the data source URL changes:
 
 - **No URL:** returns the built-in sample history after 500 ms. The page shows a **Sample data** note above it saying the numbers are examples, not measurements; the note goes away once a data source URL is applied.
-- **`github://owner/repo/branch/path`:** calls `repos.getContent` with an unauthenticated Octokit client and base64-decodes the file.
+- **`github://owner/repo/branch/path`:** calls `repos.getContent` with an unauthenticated Octokit client and the raw media type, so the file arrives whole at any size up to GitHub's 100 MB limit for this API. (GitHub's default JSON response has no content for files over 1 MB.)
 - **Any other URL:** `fetch` and parse as JSON.
 
 Every history, including the built-in sample, is checked before anything is drawn. It must be an object with a `snapshots` array, and each snapshot must be an object with a `schema_version` of `1.0` or `2.0` (the versions core reads) and a `functions` array. Otherwise the page shows an error naming the snapshot and its commit, for example `Snapshot 2 (commit v2count) has schema_version "3.0", which this dashboard does not support. Supported versions: 1.0, 2.0.` The dashboard does not try to read a version it does not know.
