@@ -12,6 +12,7 @@ React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` f
 - `src/metrics.ts`: turns snapshots into chart points, one value per metric per snapshot, and into the rows of the per-function tables.
 - `src/components/MetricChart.tsx`: one chart per unit.
 - `src/components/FunctionTables.tsx`: the per-function tables under the charts.
+- `src/trends.ts` and `src/components/TrendAlerts.tsx`: the trend rules and the Trend alerts panel.
 
 ## Loading data
 
@@ -32,6 +33,11 @@ Other errors are shown in place of the charts.
 - **Latest commit:** `commit_sha` of the last snapshot.
 - **Regression state:** "Regression Detected" if any function's `cpu_instructions` in the last snapshot is more than 10% above the snapshot before it. Only CPU is checked, and the 10% is fixed.
 - **Tracked functions:** the number of distinct function names across all snapshots.
+- **Trend alerts:** a panel above the charts for slow growth that the single-commit regression state misses. It checks each function in the latest snapshot, using the snapshots that contain it (its measurements):
+  - **Cap projection:** a least-squares line through `pct_of_network_cap` over the last 5 measurements. The function is flagged when the line reaches 80% within 10 commits, counted from the latest share, or when the share is already 80% or more. All 5 measurements need a cap figure; snapshots made before core read network caps have `0` and do not count, and the panel says when no function has enough. `pct_of_network_cap` is the highest share of any single metric's cap, so the alert cannot say which metric is closing in.
+  - **Creep:** a metric (CPU, read or write bytes, all or read-write entries) that rose in each of the last 3 measurements and by 10% or more in total, from a starting value above 0.
+
+  80% and 10% are the defaults of core's `--cap-warning-pct` and `--max-delta-pct`; the dashboard does not read your own flags. Each alert shows the numbers it is based on and opens the function's history table.
 - **Charts:** one per unit, per snapshot, for all functions summed or for one selected function:
   - CPU instructions (`cpu_instructions`)
   - Ledger bytes: read bytes (`read_bytes`) and write bytes (`write_bytes`)
