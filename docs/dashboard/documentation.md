@@ -9,8 +9,9 @@ React 19, Vite, TypeScript, Tailwind CSS, Recharts for charts, `@octokit/rest` f
 - `src/App.tsx`: routes `/` to `Dashboard`.
 - `src/pages/Dashboard.tsx`: the dashboard. Holds the loaded history, the selected function and the data source URL.
 - `src/api.ts`: `fetchSnapshotHistory(url)` and the built-in sample history.
-- `src/metrics.ts`: turns snapshots into chart points, one value per metric per snapshot.
+- `src/metrics.ts`: turns snapshots into chart points, one value per metric per snapshot, and into the rows of the per-function tables.
 - `src/components/MetricChart.tsx`: one chart per unit.
+- `src/components/FunctionTables.tsx`: the per-function tables under the charts.
 
 ## Loading data
 
@@ -39,6 +40,10 @@ Other errors are shown in place of the charts.
   Each y-axis is labelled with its unit, and the second line in a chart is dashed so the two can be told apart without colour.
 - **Missing values:** a value that is `null` or absent, or a function missing from a snapshot, is drawn as a gap, not as 0. The all-functions sum is a gap if any function lacks the value. Snapshots without entry counts (schema `1.0`, including the built-in sample) show "Not reported in these snapshots" in place of the entries chart.
 - Memory (`memory_bytes`) is not charted: core records it as `null` because current RPCs do not report it.
+- **Functions table** (all functions selected), under the charts: one row per function with its latest measurement, the commit it came from, every metric with its change since the function's previous measurement, and its share of the network cap (`pct_of_network_cap`). Functions in the latest snapshot come first; a function missing from it is marked "not in latest snapshot" and shows its last measurement. Selecting a function's name opens its history.
+- **History table** (one function selected, from the Functions table or the filter): one row per snapshot, newest first, with each metric and its change, so a jump can be traced to the commit that caused it. A snapshot without the function says "Not in this snapshot". **All functions** goes back.
+
+  A change is the percent difference from the last snapshot that contained the function. There is none for the first measurement, from a previous value of 0, or when either value is unknown. Unknown values say "not reported"; a `pct_of_network_cap` of 0 (snapshots made before core read network caps) and an empty `commit_sha` say "not recorded". The sign of a change shows its direction; colour only repeats it.
 
 ## Known limitations
 
