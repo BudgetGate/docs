@@ -14,18 +14,34 @@ It keeps no state of its own. Every run takes a baseline file and produces a new
 
 ### Download a release
 
-[v0.2.1](https://github.com/BudgetGate/soroban-budget-core/releases/tag/v0.2.1) is the latest release. It contains a static Linux x86-64 binary and a checksum file. Use it rather than v0.2.0: v0.2.0 was built with Go 1.25.14, which has known vulnerabilities in its HTTP and TLS libraries; v0.2.1 is built with Go 1.26.10 and measures the same.
+[v0.2.2](https://github.com/BudgetGate/soroban-budget-core/releases/tag/v0.2.2) is the latest release. It has static binaries for Linux, macOS and Windows on x86-64 and arm64, plus one `SHA256SUMS` file covering them: `budget-core-linux-amd64`, `budget-core-linux-arm64`, `budget-core-darwin-amd64`, `budget-core-darwin-arm64`, `budget-core-windows-amd64.exe`, `budget-core-windows-arm64.exe`. Use it rather than v0.2.0, which was built with Go 1.25.14 (known vulnerabilities in its HTTP and TLS libraries). v0.2.1 and later are built with Go 1.26.10 and measure the same.
+
+Linux and macOS (pick your `ASSET`):
 
 ```bash
-curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.1/budget-core-linux-amd64
-curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.1/SHA256SUMS
-sha256sum -c SHA256SUMS
-chmod +x budget-core-linux-amd64 && mv budget-core-linux-amd64 budget-core
+V=v0.2.2; ASSET=budget-core-linux-amd64
+curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/$V/$ASSET
+curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/$V/SHA256SUMS
+sha256sum -c --ignore-missing SHA256SUMS      # macOS: shasum -a 256 -c --ignore-missing SHA256SUMS
+chmod +x $ASSET && mv $ASSET budget-core
 ```
+
+Windows (PowerShell; the comparison must print `True`):
+
+```powershell
+$V = 'v0.2.2'; $A = 'budget-core-windows-amd64.exe'
+$R = "https://github.com/BudgetGate/soroban-budget-core/releases/download/$V"
+Invoke-WebRequest "$R/$A" -OutFile $A; Invoke-WebRequest "$R/SHA256SUMS" -OutFile SHA256SUMS
+$expected = ((Select-String -Path SHA256SUMS -Pattern " $A$").Line -split '\s+')[0]
+(Get-FileHash $A -Algorithm SHA256).Hash.ToLower() -eq $expected
+Rename-Item $A budget-core.exe
+```
+
+`--ignore-missing` is needed because `SHA256SUMS` lists all six binaries. v0.2.1 and earlier only include `budget-core-linux-amd64`.
 
 ### Build from source
 
-On other platforms, build with Go 1.26.10 or later (core's `go.mod` requires it; an older Go downloads 1.26.10 itself unless `GOTOOLCHAIN=local` is set):
+To build it yourself, use Go 1.26.10 or later (core's `go.mod` requires it; an older Go downloads 1.26.10 itself unless `GOTOOLCHAIN=local` is set):
 
 ```bash
 git clone https://github.com/BudgetGate/soroban-budget-core.git

@@ -63,4 +63,6 @@ Going above `--cap-warning-pct` (default 80%) of a cap shows a warning. It fails
 
 ## Known limitations
 
-- Releases only include a Linux x86-64 binary. On other platforms, build core from source (see [Install](/core/#install)).
+- Only Stellar testnet has been run. Other networks should work through any Soroban RPC that serves `simulateTransaction`, `getLedgerEntries` and `getNetwork`, but are untested.
+- Memory is not measured: current RPCs do not report it, so snapshots record `memory_bytes` as `null` and it is never compared.
+- The CPU figure is core's measurement of actual use from two simulations. It has not been checked against what an executed transaction is charged.
