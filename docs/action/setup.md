@@ -45,7 +45,7 @@ Build the contracts, deploy them to testnet and write the fixture against those 
 
    - `ACCOUNTS`, if a call needs authorization from an account other than the transaction's source: one name per line, for example `"alice"`. Each gets a throwaway key funded by friendbot.
 
-   In all three lists `{ADDRESS}` becomes the run's funded address and `{<name>}` the address of an account in `ACCOUNTS` or the ID of a contract listed above, so a contract that calls another can take its ID in its constructor (`"pool target/wasm32v1-none/release/pool.wasm --token {token}"`) or in a call. Arguments are split on spaces, so an argument cannot contain one.
+   In all three lists `{ADDRESS}` becomes the run's funded address and `{<name>}` the address of an account in `ACCOUNTS` or the ID of a contract listed above, so a contract that calls another can take its ID in its constructor (`"pool target/wasm32v1-none/release/pool.wasm --token {token}"`) or in a call. Each line is split into words the way a shell would, without running anything, so quote an argument that contains spaces, such as text or JSON for a vector, map or struct: `"set_memo token set_memo --memo 'paid in full'"`, `"total pool total --values '[1, 2, 3]'"`. An unmatched quote stops the script.
 2. Pin Rust in `rust-toolchain.toml`, so the baseline and every pull request compile the same wasm. A different Rust version compiles slightly different wasm and moves the measured cost (in the test repository, 449,013 instead of 449,005 CPU instructions for the same code):
 
    ```toml
