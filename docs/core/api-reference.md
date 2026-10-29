@@ -83,7 +83,7 @@ Snapshots written before 2.0 existed say `1.0` even when they contain the newer 
 
 | Field | Description |
 |---|---|
-| `cpu_instructions` | Actual CPU instructions used (see [measurement](/core/documentation#cpu-instructions)). |
+| `cpu_instructions` | CPU instructions the simulation used, without the RPC's declaration pad; slightly above what an executed call uses (see [measurement](/core/documentation#cpu-instructions)). |
 | `memory_bytes` | `null` when the RPC does not report memory, which current RPCs do not. Not compared. |
 | `read_bytes` | The RPC's `diskReadBytes`. Does not include reads of live contract storage. |
 | `write_bytes` | Bytes written. |
