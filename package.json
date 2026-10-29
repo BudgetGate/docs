@@ -10,7 +10,7 @@
   "description": "User documentation for Budget Gate (soroban-budget-core, soroban-budget-action, soroban-budget-dashboard), built with VitePress.",
   "devDependencies": {
     "vitepress": "^1.6.4",
-    "vue": "^3.5.42"
+    "vue": "^3.5.44"
   },
   "overrides": {
     "vite": "^6.4.4"
