@@ -1,3 +1,5 @@
+<p align="center"><img src=".github/avatar.png" width="120" alt="Budget Gate logo: a resource-cost gauge behind a gate bar"></p>
+
 # Budget Gate docs
 
 User documentation for Budget Gate, a CI regression checker for Soroban smart-contract resource cost. Live at **[budgetgate.github.io/docs](https://budgetgate.github.io/docs/)**.
