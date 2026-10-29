@@ -37,12 +37,13 @@ Until the first push to the default branch has run, there is no baseline: the PR
 
 ## Measure each commit's contract code
 
-Build the contract, deploy it to testnet and write the fixture against that deployment in every run, before Budget Gate. A pull request is then measured on its own code, and the default branch's runs measure (and save as the baseline) the default branch's code.
+Build the contracts, deploy them to testnet and write the fixture against those deployments in every run, before Budget Gate. A pull request is then measured on its own code, and the default branch's runs measure (and save as the baseline) the default branch's code.
 
 1. Copy [`build-fixture.sh`](https://github.com/BudgetGate/soroban-budget-action/blob/main/examples/build-fixture.sh) to `budget/build-fixture.sh` and make it executable. Set:
-   - `WASM`: the file `stellar contract build` writes, for example `target/wasm32v1-none/release/my_contract.wasm`;
-   - `CALLS`: one line per call to measure, the function name then its arguments as for `stellar contract invoke`, for example `"transfer --from {ADDRESS} --to {ADDRESS} --amount 10"`. `{ADDRESS}` becomes the run's funded address;
-   - `CONSTRUCTOR_ARGS`, if your contract has a constructor.
+   - `CONTRACTS`: one line per contract: a name for it, the wasm `stellar contract build` writes, then its constructor arguments if it has a constructor, for example `"token target/wasm32v1-none/release/token.wasm --admin {ADDRESS} --decimal 7"`. Contracts are deployed in this order;
+   - `CALLS`: one line per call to measure: the name it is reported under, the contract's name from `CONTRACTS`, the function, then its arguments as for `stellar contract invoke`, for example `"transfer token transfer --from {ADDRESS} --to {ADDRESS} --amount 10"`. The baseline is matched by the reported name, so each must be unique (the script stops otherwise), and renaming one shows it as removed and added.
+
+   In both lists `{ADDRESS}` becomes the run's funded address and `{<name>}` the ID of a contract listed above, so a contract that calls another can take its ID in its constructor (`"pool target/wasm32v1-none/release/pool.wasm --token {token}"`) or in a call. Arguments are split on spaces, so an argument cannot contain one.
 2. Pin Rust in `rust-toolchain.toml`, so the baseline and every pull request compile the same wasm. A different Rust version compiles slightly different wasm and moves the measured cost (in the test repository, 449,013 instead of 449,005 CPU instructions for the same code):
 
    ```toml
@@ -50,13 +51,20 @@ Build the contract, deploy it to testnet and write the fixture against that depl
    channel = "1.97.1"
    targets = ["wasm32v1-none"]
    ```
-3. Add the CLI and the script before the Action ([`measure-contract-code.yml`](https://github.com/BudgetGate/soroban-budget-action/blob/main/examples/measure-contract-code.yml)), and add `budget/fixture.json` to `.gitignore`:
+3. Add the build cache, the CLI and the script before the Action ([`measure-contract-code.yml`](https://github.com/BudgetGate/soroban-budget-action/blob/main/examples/measure-contract-code.yml)), and add `budget/fixture.json` to `.gitignore`:
 
    ```yaml
        steps:
          - uses: actions/checkout@v7
+         - uses: actions/cache@v6
+           with:
+             path: |
+               ~/.cargo/registry
+               ~/.cargo/git
+               target
+             key: contracts-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock') }}
          - uses: stellar/stellar-cli@v28.1.0
-         - name: Deploy this commit's contract and write the fixture
+         - name: Deploy this commit's contracts and write the fixture
            run: budget/build-fixture.sh
          - uses: BudgetGate/soroban-budget-action@v0.2.2
            with:
@@ -64,9 +72,13 @@ Build the contract, deploy it to testnet and write the fixture against that depl
              binary-version: 0.2.2
    ```
 
-The script creates a throwaway key and funds it with friendbot, so no secrets are needed, and it retries testnet steps that time out. Because every run deploys a fresh contract, a testnet reset does not break it. Fixture calls are simulated, never submitted, so every call sees the contract's storage as it is right after deployment. To measure a function with state in place (balances, an initialised config), add real `stellar contract invoke` commands without `--build-only` to the script after the deploy and before the fixture is written. The CLI install, build and deploy took 56–63 seconds per run in the test repository.
+The script creates a throwaway key and funds it with friendbot, so no secrets are needed, and it retries testnet steps that time out. Because every run deploys fresh contracts, a testnet reset does not break it. Fixture calls are simulated, never submitted, so every call sees the contracts' storage as it is right after deployment (constructors have run). To measure a function with state in place (balances, an initialised config), add real `stellar contract invoke` commands without `--build-only` to the script after the deploys and before the fixture is written. A call that needs authorization from `{ADDRESS}` works, since that key is the transaction's source; authorization from any other account does not.
 
-Tested in [BudgetGate/budgetgate-action-test](https://github.com/BudgetGate/budgetgate-action-test) (2026-10-29), with the script used as published apart from `WASM` and `CALLS`: a pull request with unchanged code measured 291,573 CPU instructions, 0.00% against the baseline ([PR #10](https://github.com/BudgetGate/budgetgate-action-test/pull/10)), and a pull request that only changed the contract's Rust code reported the regression, 291,573 → 449,005 ([PR #11](https://github.com/BudgetGate/budgetgate-action-test/pull/11)).
+The cache keeps downloaded crates and compiled dependencies between runs, keyed on the toolchain and `Cargo.lock`. A fresh checkout makes your contracts' sources newer than the cache, so cargo rebuilds them every run, and the wasm is byte-identical to an uncached build. In the test repository, with three contracts, the cache cut the build from about 43 to 10 seconds; the whole step (CLI install, build, three deploys) took 54–65 seconds, most of it testnet deploys.
+
+A call into another contract can measure slightly differently from one deployment to the next: in the test repository the relay contract (which calls the counter) measured 558,474 or 559,224 CPU instructions across five fresh deployments of the same wasm, while calls that stay in one contract never varied. The cause is not established. The 0.13% difference is far below the default 10% threshold, but an absolute threshold such as `max-cpu-increase` can trip on it.
+
+Tested in [BudgetGate/budgetgate-action-test](https://github.com/BudgetGate/budgetgate-action-test) (2026-10-29), with the script used as published apart from its lists: a pull request with unchanged code measured 291,573 CPU instructions, 0.00% against the baseline ([PR #10](https://github.com/BudgetGate/budgetgate-action-test/pull/10)), and a pull request that only changed the contract's Rust code reported the regression, 291,573 → 449,005 ([PR #11](https://github.com/BudgetGate/budgetgate-action-test/pull/11)). With three contracts ([PR #12](https://github.com/BudgetGate/budgetgate-action-test/pull/12)): a vault with a constructor (`--admin {ADDRESS} --limit 1000`) whose `deposit --from {ADDRESS} --amount 10` needs authorization measured 411,511 CPU instructions, and a relay given `{counter}` in its constructor, which calls the counter, measured 558,474. Changing only the counter's code raised the relay too, to 587,205 (measured on testnet before that pull request).
 
 ## Committing the baseline instead
 
