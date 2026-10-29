@@ -8,15 +8,25 @@ For each fixture entry, core calls `simulateTransaction` on the RPC and decodes 
 
 ### CPU instructions
 
-The instruction count an RPC returns is what it recommends *declaring*, not what was used: actual usage plus `max(instructionLeeway, provider pad)`. On soroban-testnet the pad is 50,000, which hides real changes. A 10% increase in a function that uses 91,406 instructions shows up as about 6.5%.
+The instruction count an RPC returns is what it recommends *declaring*, not what was used: the simulation's usage plus `max(instructionLeeway, provider pad)`. On soroban-testnet the pad is 50,000, which hides real changes. A 10% increase in a function that uses 91,406 instructions shows up as about 6.5%.
 
 Core removes the pad by simulating each entry twice, with `instructionLeeway` set to 1,000,000 and to 2,000,000, and subtracting:
 
 ```
-actual = declared(1,000,000) − 1,000,000
+used = declared(1,000,000) − 1,000,000
 ```
 
 It checks that the two declared values differ by exactly 1,000,000. If they don't, the provider pads some other way, and core stops with an error instead of reporting a wrong number. Each fixture entry therefore costs two RPC calls.
+
+The result is what the **simulation** used. Executing the same call uses slightly fewer instructions. On testnet (protocol 29, 2026-10-29), three calls that core measured were then submitted, and the instructions each one used were read from the transaction's `core_metrics` diagnostic events:
+
+| Call | Core (simulated) | Executed |
+|---|---|---|
+| A counter `bump` (one storage write) | 291,573 | 288,297 (−1.14%) |
+| A `deposit` with a constructor-set limit and `require_auth` | 411,511 | 409,658 (−0.45%) |
+| A `relay` that calls the counter | 559,224 | 555,007 (−0.76%) |
+
+Read and write bytes and entries matched exactly, and each transaction declared core's figure plus the CLI's 50,000 leeway. Both sides of a comparison are simulated, so regressions and percentages are unaffected; treat the figure as slightly above what execution uses, and not as what a transaction declares or pays for. A simulation response does not include `core_metrics`, so core cannot report the executed figure without submitting transactions, which it never does.
 
 ### Read and write bytes
 
