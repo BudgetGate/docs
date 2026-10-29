@@ -11,5 +11,5 @@
 - Keeps the baseline for you: each push to the default branch saves the measured snapshot to the Actions cache, and pull requests compare against it. A committed baseline file can be used instead.
 
 ::: warning Status
-Core v0.2.1 is released, and `binary-version: 0.2.1` downloads it on Linux x86-64 runners; this has run in a real workflow and on real pull requests (see [Workflow Setup](/action/setup#tested)). The Action's latest release is [v0.2.1](https://github.com/BudgetGate/soroban-budget-action/releases/tag/v0.2.1).
+Core v0.2.2 is released, and `binary-version: 0.2.2` downloads the runner's binary on Linux, macOS and Windows, on x64 and arm64; this has run in real workflows and on real pull requests on all six (see [Workflow Setup](/action/setup#tested)). The Action's latest release is [v0.2.2](https://github.com/BudgetGate/soroban-budget-action/releases/tag/v0.2.2).
 :::
