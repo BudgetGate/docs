@@ -24,6 +24,8 @@ npm run docs:build    # static build into docs/.vitepress/dist
 
 Every push to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages. There is no separate release step.
 
+Every pull request to `main` runs `.github/workflows/ci.yml` (job `docs-build`), which runs the same `npm run docs:build`. A dead internal link or a malformed `{{ }}` expression (VitePress evaluates them even inside inline code) fails the build, so it fails the PR instead of the deploy.
+
 ## Contributing
 
 - Base your branch on `main` and open a PR.
