@@ -25,7 +25,7 @@ chmod +x budget-core-linux-amd64 && mv budget-core-linux-amd64 budget-core
 
 ### Build from source
 
-On other platforms, build with Go 1.25 or later:
+On other platforms, build with Go 1.26.10 or later (core's `go.mod` requires it; an older Go downloads 1.26.10 itself unless `GOTOOLCHAIN=local` is set):
 
 ```bash
 git clone https://github.com/BudgetGate/soroban-budget-core.git
