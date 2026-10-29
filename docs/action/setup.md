@@ -55,7 +55,7 @@ On a runner other than Linux x86-64, or to run core's latest code, build it and 
 ```yaml
       - uses: actions/setup-go@v7
         with:
-          go-version: '1.25'
+          go-version: '1.26'
 
       - name: Build soroban-budget-core
         run: |
