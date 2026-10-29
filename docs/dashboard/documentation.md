@@ -28,6 +28,8 @@ A 403 or 429 response is shown as **RATE_LIMITED** instead of an error when GitH
 
 Other errors are shown in place of the charts.
 
+A `github://` history is reused for as long as GitHub's `Cache-Control: max-age` says it is fresh (60 seconds on the Contents API). Without a token, even a conditional request answered with 304 Not Modified costs one of the 60 requests per hour, so the page does not ask again within that time. Above the charts it says when the history was fetched and until when a refresh reuses it. A history that fails its checks is not kept. The refresh button reloads even when the URL is unchanged.
+
 ## What the page shows
 
 - **Latest commit:** `commit_sha` of the last snapshot.
@@ -53,4 +55,4 @@ Other errors are shown in place of the charts.
 
 ## Known limitations
 
-- Results are not cached, and entering the same URL again does not reload it.
+- An `https://` source is left to the browser's HTTP cache: raw.githubusercontent.com sends `max-age=300`, so a refresh within 5 minutes may show the same copy.
