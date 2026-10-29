@@ -14,11 +14,11 @@ It keeps no state of its own. Every run takes a baseline file and produces a new
 
 ### Download a release
 
-[v0.2.0](https://github.com/BudgetGate/soroban-budget-core/releases/tag/v0.2.0) is the first release. It contains a static Linux x86-64 binary and a checksum file:
+[v0.2.1](https://github.com/BudgetGate/soroban-budget-core/releases/tag/v0.2.1) is the latest release. It contains a static Linux x86-64 binary and a checksum file. Use it rather than v0.2.0: v0.2.0 was built with Go 1.25.14, which has known vulnerabilities in its HTTP and TLS libraries; v0.2.1 is built with Go 1.26.10 and measures the same.
 
 ```bash
-curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.0/budget-core-linux-amd64
-curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.0/SHA256SUMS
+curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.1/budget-core-linux-amd64
+curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/v0.2.1/SHA256SUMS
 sha256sum -c SHA256SUMS
 chmod +x budget-core-linux-amd64 && mv budget-core-linux-amd64 budget-core
 ```
