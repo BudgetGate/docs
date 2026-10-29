@@ -39,6 +39,12 @@ Rename-Item $A budget-core.exe
 
 `--ignore-missing` is needed because `SHA256SUMS` lists all six binaries. v0.2.1 and earlier only include `budget-core-linux-amd64`.
 
+Releases after v0.2.3 also carry a signed build provenance attestation for each binary, proving it was built by the repository's release workflow from the tagged commit. A checksum only shows the download matches the release; the attestation also shows where the release came from. Check it with the GitHub CLI (v0.2.3 and earlier have none, so the command fails for them):
+
+```bash
+gh attestation verify budget-core -R BudgetGate/soroban-budget-core
+```
+
 ### Build from source
 
 To build it yourself, use Go 1.26.10 or later (core's `go.mod` requires it; an older Go downloads 1.26.10 itself unless `GOTOOLCHAIN=local` is set):
