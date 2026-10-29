@@ -1,0 +1,26 @@
+name: Docs CI
+
+# Builds the site on pull requests, so a dead link or a template error fails the PR
+# instead of the deploy after merge. deploy.yml builds and publishes on pushes to main.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  docs-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build with VitePress
+        run: npm run docs:build
