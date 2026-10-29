@@ -26,6 +26,8 @@ npm run docs:build    # static build into docs/.vitepress/dist
 
 Every push to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages. There is no separate release step.
 
+`package.json` overrides VitePress 1.6.4's Vite 5 with Vite 6.4.4 or later: Vite 5 and its `esbuild` have dev-server advisories (one high) that are only fixed in Vite 6.4.4, and VitePress has no stable release on Vite 6 yet (2.0 is in alpha). With the override, every page's text is unchanged and `npm audit` reports 0 (checked 2026-10-29). Remove it when VitePress moves to Vite 6 or later. Dependabot opens weekly update PRs, and `.github/workflows/audit.yml` audits the dependencies every week.
+
 Every pull request to `main` runs `.github/workflows/ci.yml` (job `docs-build`), which runs the same `npm run docs:build`. A dead internal link or a malformed `{{ }}` expression (VitePress evaluates them even inside inline code) fails the build, so it fails the PR instead of the deploy.
 
 ## Contributing
