@@ -49,7 +49,7 @@ stdout carries only the Markdown report, so it can be redirected or posted as-is
 | `fixture_id` | Identifier copied into the snapshot. |
 | `xdr` | Base64 transaction envelope XDR that invokes the contract. |
 
-`stellar contract invoke ... --build-only -- <function>` prints a suitable XDR.
+`stellar contract invoke --id <contract> --source <key> --network testnet --build-only -- <function> [args]` prints a suitable XDR for a deployed contract. The source account must exist on the network when core simulates the call. To measure each commit's code in CI rather than a contract deployed once, see [Measure each commit's contract code](/action/setup#measure-each-commit-s-contract-code).
 
 ## Snapshot format
 
