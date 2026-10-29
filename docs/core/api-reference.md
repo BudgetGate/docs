@@ -27,7 +27,7 @@ One of `--fixture` or `--new` is required. Negative threshold values are rejecte
 |---|---|
 | `0` | No regression. Also `-h`. |
 | `1` | At least one metric regressed, or a cap warning with `--fail-on-cap-warning`. |
-| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, an RPC failure, or a `--output-json` file that could not be written. |
+| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, a fixture or `--new` snapshot that repeats a function name, an RPC failure, or a `--output-json` file that could not be written. |
 
 stdout carries only the Markdown report, so it can be redirected or posted as-is. Usage, progress and error messages go to stderr; on an error, stdout is empty, except when only writing `--output-json` failed: the report is printed first, then the run exits `2`.
 
@@ -45,7 +45,7 @@ stdout carries only the Markdown report, so it can be redirected or posted as-is
 
 | Field | Description |
 |---|---|
-| `name` | Function or test name. Snapshots are matched on this. |
+| `name` | Function or test name. Snapshots are matched on this, so each entry needs its own: a fixture that repeats a name stops the run with exit code `2` before anything is simulated. To measure one function with different arguments, give each call a different name. |
 | `fixture_id` | Identifier copied into the snapshot. |
 | `xdr` | Base64 transaction envelope XDR that invokes the contract. |
 
@@ -54,6 +54,8 @@ stdout carries only the Markdown report, so it can be redirected or posted as-is
 ## Snapshot format
 
 Schema version `2.0`. Core writes `2.0` and reads `1.0` and `2.0` snapshots, as a baseline or with `--new`. A `1.0` baseline compares cleanly: its memory value is ignored, and missing entry counts show as `➖ NOT REPORTED`. Any other version, or none, stops the run with exit code `2`.
+
+Function names are unique within a snapshot. A `--new` snapshot that repeats one stops the run with exit code `2`. A baseline that repeats one (core did not check this before [core #45](https://github.com/BudgetGate/soroban-budget-core/pull/45), so a fixture that measured one function twice under the same name wrote such baselines) is still read: core prints a warning and compares those functions as `🆕 NEW`, since either entry would be a guess. The next baseline saved no longer has the repeat.
 
 Snapshots written before 2.0 existed say `1.0` even when they contain the newer fields. Version history: [`SCHEMA.md`](https://github.com/BudgetGate/soroban-budget-core/blob/main/SCHEMA.md#versions).
 
