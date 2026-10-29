@@ -21,7 +21,7 @@
 | `rpc-url` | No | core's default (testnet) | RPC endpoint, used only with `fixture-path`. |
 | `binary-path` | No | `./budget-core` | Path to a `budget-core` binary. |
 | `history-branch` | No | — (off) | Branch that keeps `history.json` for the dashboard, for example `budgetgate-history`. Needs `contents: write`. |
-| `binary-version` | No | — | Core release to download, for example `0.2.2` (the latest release, and the first with macOS, Windows and Linux arm64 binaries; avoid `0.2.0`, built with a Go version that has known vulnerabilities). Linux, macOS and Windows runners on x64 or arm64; other runners fail with a message to use `binary-path`. The download is checked against the release's `SHA256SUMS`. |
+| `binary-version` | No | — | Core release to download, for example `0.2.3` (the latest release; `0.2.2` was the first with macOS, Windows and Linux arm64 binaries; avoid `0.2.0`, built with a Go version that has known vulnerabilities). Linux, macOS and Windows runners on x64 or arm64; other runners fail with a message to use `binary-path`. The download is checked against the release's `SHA256SUMS`. |
 
 ## Outputs
 

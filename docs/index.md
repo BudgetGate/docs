@@ -29,7 +29,7 @@ BudgetGate is a CI regression checker for Soroban smart-contract resource cost. 
 It does not do static analysis or vulnerability scanning. For that, see [Scout-Soroban](https://github.com/CoinFabrik/scout-soroban).
 
 ::: warning Status
-BudgetGate is early-stage software. It has not been audited and is not production-ready. Core's latest release is v0.2.2; the Action's is v0.2.2. The limitations of each part are listed on its pages.
+BudgetGate is early-stage software. It has not been audited and is not production-ready. Core's latest release is v0.2.3; the Action's is v0.2.2. The limitations of each part are listed on its pages.
 :::
 
 ## How it works

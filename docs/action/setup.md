@@ -1,6 +1,6 @@
 # Workflow Setup
 
-The Action downloads the runner's binary from core's v0.2.2 release with `binary-version: 0.2.2` and checks it against the release's `SHA256SUMS`. Linux, macOS and Windows runners work, on x64 and arm64 (core v0.2.1 and earlier only ship Linux x64). On any other runner, see [Building core yourself](#building-core-yourself).
+The Action downloads the runner's binary from core's v0.2.3 release with `binary-version: 0.2.3` and checks it against the release's `SHA256SUMS`. Linux, macOS and Windows runners work, on x64 and arm64 (core v0.2.1 and earlier only ship Linux x64). On any other runner, see [Building core yourself](#building-core-yourself).
 
 You need a [fixture](/core/api-reference#fixture-format), for example `budget/fixture.json`. A fixture measures whatever contract it calls: with a fixture against a contract you deployed once, a pull request that changes the contract's code is measured on the old deployment and shows no change. To have each pull request measured on its own code, use [Measure each commit's contract code](#measure-each-commit-s-contract-code). The workflow below suits a committed fixture.
 
@@ -28,7 +28,7 @@ jobs:
         uses: BudgetGate/soroban-budget-action@v0.2.2
         with:
           fixture-path: budget/fixture.json
-          binary-version: 0.2.2
+          binary-version: 0.2.3
 ```
 
 `v0.2.2` is the Action's latest [release](https://github.com/BudgetGate/soroban-budget-action/releases/tag/v0.2.2): the same inputs and behaviour as v0.2.1, plus macOS, Windows and Linux arm64 runners, and a cached baseline that Windows runners can restore. Tags are exact: there is no moving `v0` tag, so change the version yourself to upgrade.
@@ -69,7 +69,7 @@ Build the contracts, deploy them to testnet and write the fixture against those 
          - uses: BudgetGate/soroban-budget-action@v0.2.2
            with:
              fixture-path: budget/fixture.json
-             binary-version: 0.2.2
+             binary-version: 0.2.3
    ```
 
 The script creates a throwaway key and funds it with friendbot, so no secrets are needed, and it retries testnet steps that time out. Because every run deploys fresh contracts, a testnet reset does not break it. Fixture calls are simulated, never submitted, so every call sees the contracts' storage as it is right after deployment (constructors have run). To measure a function with state in place (balances, an initialised config), add real `stellar contract invoke` commands without `--build-only` to the script after the deploys and before the fixture is written. A call that needs authorization from `{ADDRESS}` works, since that key is the transaction's source; authorization from any other account does not.
@@ -86,7 +86,7 @@ If you'd rather keep the baseline in the repository, create it locally as shown 
 
 ```yaml
         with:
-          binary-version: 0.2.2
+          binary-version: 0.2.3
           baseline-path: budget/baseline.json
           fixture-path: budget/fixture.json
 ```
@@ -116,4 +116,4 @@ On a runner `binary-version` does not cover, or to run core's latest code, build
 
 ## Tested
 
-This setup has run on GitHub in [BudgetGate/budgetgate-action-test](https://github.com/BudgetGate/budgetgate-action-test) (2026-10-28): a push to `main` downloaded core v0.2.0, saved the baseline and wrote the history; pull requests restored that baseline from the cache, posted a regression report for a contract whose cost went up, updated the same comment on the next push, and replaced it with "The latest run failed" when core could not run. Those runs used the Action's `main` at the code later tagged `v0.2.0`; a pull request run of the `@v0.2.0` tag itself then passed ([test repo PR #4](https://github.com/BudgetGate/budgetgate-action-test/pull/4)). The released `@v0.2.1` tag then passed on [test repo PR #7](https://github.com/BudgetGate/budgetgate-action-test/pull/7) (2026-10-29). Before that, core v0.2.1 ran through the Action on [test repo PR #6](https://github.com/BudgetGate/budgetgate-action-test/pull/6) (2026-10-29): downloaded, checksum matched, a regression reported for the costlier contract and the same comment updated to a pass. On 2026-10-29 the released `@v0.2.2` tag ran on `ubuntu-latest`, `ubuntu-24.04-arm`, `macos-26-intel`, `macos-latest`, `windows-latest` and `windows-11-arm` ([test repo PR #8](https://github.com/BudgetGate/budgetgate-action-test/pull/8)): each downloaded its own core v0.2.2 binary, matched the checksum, restored the baseline saved by a Linux run and reported the counter contract's regression. The `binary-path` variant above has not been run there.
+This setup has run on GitHub in [BudgetGate/budgetgate-action-test](https://github.com/BudgetGate/budgetgate-action-test) (2026-10-28): a push to `main` downloaded core v0.2.0, saved the baseline and wrote the history; pull requests restored that baseline from the cache, posted a regression report for a contract whose cost went up, updated the same comment on the next push, and replaced it with "The latest run failed" when core could not run. Those runs used the Action's `main` at the code later tagged `v0.2.0`; a pull request run of the `@v0.2.0` tag itself then passed ([test repo PR #4](https://github.com/BudgetGate/budgetgate-action-test/pull/4)). The released `@v0.2.1` tag then passed on [test repo PR #7](https://github.com/BudgetGate/budgetgate-action-test/pull/7) (2026-10-29). Before that, core v0.2.1 ran through the Action on [test repo PR #6](https://github.com/BudgetGate/budgetgate-action-test/pull/6) (2026-10-29): downloaded, checksum matched, a regression reported for the costlier contract and the same comment updated to a pass. On 2026-10-29 the released `@v0.2.2` tag ran on `ubuntu-latest`, `ubuntu-24.04-arm`, `macos-26-intel`, `macos-latest`, `windows-latest` and `windows-11-arm` ([test repo PR #8](https://github.com/BudgetGate/budgetgate-action-test/pull/8)): each downloaded its own core v0.2.2 binary, matched the checksum, restored the baseline saved by a Linux run and reported the counter contract's regression. Core v0.2.3 then ran through `@v0.2.2` on `ubuntu-latest` ([test repo PR #14](https://github.com/BudgetGate/budgetgate-action-test/pull/14)): downloaded, checksum matched, 0.00% for all three functions against the cached baseline. The `binary-path` variant above has not been run there.
