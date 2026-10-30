@@ -56,4 +56,5 @@ A `github://` history is reused for as long as GitHub's `Cache-Control: max-age`
 
 ## Known limitations
 
+- **Size:** checked at the Action's limit of 200 snapshots, each with 30 functions (a 1.1 MB `history.json`), in headless Chrome on 2026-10-30: the functions table appeared 0.25 s after applying the URL, the charts about 0.85 s later, and a function's 200-row history 0.2 s after selecting it, with no errors. At that size the chart points merge into a thick line, and the x-axis labels every ninth commit.
 - An `https://` source is left to the browser's HTTP cache: raw.githubusercontent.com sends `max-age=300`, so a refresh within 5 minutes may show the same copy.
