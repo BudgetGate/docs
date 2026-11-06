@@ -22,6 +22,8 @@ npm run docs:dev      # local server with live reload
 npm run docs:build    # static build into docs/.vitepress/dist
 ```
 
+To contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Deploy
 
 Every push to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages. There is no separate release step.
