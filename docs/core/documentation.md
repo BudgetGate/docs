@@ -42,6 +42,21 @@ Read and write bytes and entries matched exactly, and each transaction declared 
 
 Current `simulateTransaction` responses do not report memory. `memory_bytes` is recorded as `null` and is not compared.
 
+### Archived contract state
+
+A contract and its wasm are archived when their TTL runs out; on testnet the minimum for persistent entries is 120,960 ledgers, about 7 days. Since protocol 23 a simulation restores archived entries automatically, and its figures include that work. They are not the cost of the call: on testnet at protocol 30 a counter measured 474,777 CPU instructions and 788 write bytes archived, and 291,573 and 80 live.
+
+So after v0.2.3 ([core #79](https://github.com/BudgetGate/soroban-budget-core/pull/79)), a fixture run that would restore entries stops with exit code `2`, prints no report and writes no snapshot. v0.2.3 and earlier report the inflated figures, which show as a regression the code did not cause.
+
+Building and deploying the contract in each run avoids this. For a fixture that calls an existing deployment, keep it alive. Restore both the contract and its wasm, since `--id` alone leaves the wasm archived, then extend both:
+
+```bash
+stellar contract restore --id <contract> --source <key> --network testnet
+stellar contract restore --wasm-hash <hash> --source <key> --network testnet
+stellar contract extend --id <contract> --ledgers-to-extend 1500000 --source <key> --network testnet
+stellar contract extend --wasm-hash <hash> --ledgers-to-extend 1500000 --source <key> --network testnet
+```
+
 ## Comparison
 
 Functions are matched by `name`. For each compared metric:
