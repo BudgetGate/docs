@@ -28,9 +28,9 @@ BudgetGate is a CI regression checker for Soroban smart-contract resource cost. 
 
 ## See it run
 
-<video controls preload="none" poster="/demo-poster.jpg" src="/demo.mp4" style="width:100%;border-radius:8px" aria-label="75-second demo with narration and captions"></video>
+<video controls preload="none" poster="/demo-poster.jpg" src="/demo.mp4" style="width:100%;border-radius:8px" aria-label="105-second demo with narration and captions"></video>
 
-A 75-second demo with captions and a synthetic voice: a measurement on testnet, a regression, the report on a real pull request, and the history on the live dashboard. Every number is from a real run.
+A 105-second demo with captions and a synthetic voice: a real run of the CLI on testnet, then a real pull request where the Action reports a regression and fails the check, the fix that turns the same report green, and the history on the live dashboard. Every number is from a real run.
 
 ## Why it exists
 
