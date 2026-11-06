@@ -47,11 +47,12 @@ Teams building on Soroban keep writing this task for themselves:
 
 ## What it does
 
-Other Soroban tools estimate cost, forecast rent or meter tests. BudgetGate is built for one job, gating pull requests on measured cost:
+Other tools also compare Soroban costs. BudgetGate measures through a Soroban RPC on testnet, so it needs no local network, ships binaries for Linux, macOS and Windows, and keeps the history:
 
 - **Per function:** CPU instructions, read and write bytes, and read and write entries for each call in a fixture.
 - **Each commit's own code:** an example workflow builds and deploys the contract, so a pull request is measured on its own code.
 - **A clear result:** exit code `1` is a regression and `2` means the run could not measure, so CI never confuses the two. An archived contract stops the run instead of reporting a restore as a regression.
+- **Any runner:** released, checksummed and attested binaries for Linux, macOS and Windows, on x64 and arm64.
 - **Live limits:** network caps are read from the RPC on every run, never hardcoded.
 - **History:** snapshots are kept on a branch and charted on the [dashboard](https://budgetgate-dashboard.vercel.app/).
 
