@@ -66,7 +66,7 @@ delta    = new − baseline
 % change = delta / baseline × 100
 ```
 
-If the baseline value is `0` and the new value is higher, the change counts as 100%. A metric is a regression when `% change > --max-delta-pct`, or when `delta` is above that metric's `--max-*-increase` limit. Absolute limits are per metric because the scales differ: CPU is in the hundreds of thousands, entry counts in single digits.
+If the baseline value is `0` and the new value is higher, the change counts as 100% for the regression check; after v0.2.4 the report shows `from 0` instead of a percentage. A metric is a regression when `% change > --max-delta-pct`, or when `delta` is above that metric's `--max-*-increase` limit. Absolute limits are per metric because the scales differ: CPU is in the hundreds of thousands, entry counts in single digits.
 
 ### Network caps
 
@@ -89,5 +89,6 @@ Going above `--cap-warning-pct` (default 80%) of a cap shows a warning. It fails
 ## Known limitations
 
 - Measuring a changed contract has been verified on testnet only. On mainnet, a read-only call measured the same on three public RPC providers (91,406 CPU instructions, caps read at protocol 29, `network: mainnet`); see core's README. Any Soroban RPC that serves `simulateTransaction`, `getLedgerEntries` and `getNetwork` works, and each fixture entry's source account must exist on that network.
-- Memory is not measured: simulation responses do not report it (executed transactions do, in their `core_metrics` events), so snapshots record `memory_bytes` as `null` and it is never compared.
-- The CPU figure is the simulation's usage, slightly above what an executed call uses (0.45%–1.14% in the three checks under [CPU instructions](#cpu-instructions), 2.0% for a call authorized by a second account, see [Workflow Setup](/action/setup)). Comparisons are unaffected because both sides are simulated.
+- Memory is not measured: simulation responses do not report it, so snapshots record `memory_bytes` as `null` and it is never compared. Executed transactions do report it, in their `core_metrics` events, and it repeated exactly: the counter's v1 used 1,134,567 bytes in four runs and v2 1,150,869 in three (testnet, protocol 30, 2026-11-06). Reading it would mean submitting each call, which needs a funded key; that is not built.
+- A contract's cost depends on its stored state, and a fixture measures whatever state the contract is in. On a fresh counter, `bump` simulated at 291,573 instructions before any real call and 301,254 once a real call had stored its count (testnet, protocol 30, 2026-11-06); bytes and entries did not change. Deploy the contract fresh in each run, as the Action's example workflow does, so both sides of a comparison start from the same state.
+- The CPU figure is the simulation's usage, slightly above what an executed call uses (0.45%–1.14% in the three checks under [CPU instructions](#cpu-instructions) at protocol 29; 1.65% and 3.37% for the counter's v1 and v2 at protocol 30, with its count already stored; 2.0% for a call authorized by a second account, see [Workflow Setup](/action/setup)). Comparisons are unaffected because both sides are simulated.
