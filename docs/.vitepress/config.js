@@ -2,6 +2,11 @@ export default {
   title: 'BudgetGate',
   description: 'Soroban Resource Budget Guard',
   base: '/docs/',
+  // head links are not prefixed with base, so the paths include /docs/.
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/docs/favicon.svg' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '64x64', href: '/docs/favicon.png' }]
+  ],
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
