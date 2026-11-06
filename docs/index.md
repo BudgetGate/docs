@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "BudgetGate"
   text: "Soroban Resource Budget Guard"
-  tagline: "Measure Soroban contract resource cost with simulateTransaction and fail CI when it goes up."
+  tagline: "Fail a pull request when a Soroban contract function gets more expensive, using costs measured on a real network."
   actions:
     - theme: brand
       text: Core CLI Docs
@@ -19,12 +19,45 @@ features:
   - title: Baseline comparison
     details: Compares a new measurement with a stored baseline snapshot and exits non-zero when any metric rises more than a set percentage (10% by default).
   - title: Why it exists
-    details: Soroban enforces resource limits at execution time, so only a simulation shows them. stellar-cli issue #1106 asks for this kind of CI check.
+    details: Soroban enforces resource limits at execution time, so only a simulation shows them. Soroban teams keep filing the same task for their own repos, a CI gate on resource cost.
 ---
 
 # Welcome to BudgetGate
 
 BudgetGate is a CI regression checker for Soroban smart-contract resource cost. It simulates configured contract calls, saves the measured cost as a baseline snapshot, and flags a change when a function's cost goes up too much.
+
+## See it run
+
+<video controls preload="none" poster="/demo-poster.jpg" src="/demo.mp4" style="width:100%;border-radius:8px" aria-label="75-second silent demo with captions"></video>
+
+A 75-second demo with captions: a measurement on testnet, a regression, the report on a real pull request, and the history on the live dashboard. Every number is from a real run.
+
+## Why it exists
+
+A change to a Soroban contract can make a function much more expensive without failing a test. Nothing shows it until a call costs more, or hits a network limit.
+
+Teams building on Soroban keep writing this task for themselves:
+
+- [lyricsflip-toolkit #78](https://github.com/Stellar-songifi/lyricsflip-toolkit/issues/78): "Track and gate on resource-cost regressions in CI"
+- [latch-contracts #70](https://github.com/3K1-Labs/latch-contracts/issues/70): "Add a resource-cost regression report to CI"
+- [accensa-contracts #92](https://github.com/accensa/accensa-contracts/issues/92): "Fail CI when a contract's resource cost regresses"
+- [HarvestLock-Contracts #31](https://github.com/Agrisettle/HarvestLock-Contracts/issues/31): "Set up a gas/resource-cost regression-tracking CI job"
+- [cee-devpulsar #41](https://github.com/Cracked-CEE/cee-devpulsar/issues/41): "CI gate on Soroban resource-cost regressions per PR"
+- [Fluxora-Contracts #573](https://github.com/Fluxora-Org/Fluxora-Contracts/issues/573): "Add Soroban gas-cost regression CI gate for create_stream, withdraw, and batch operations"
+
+## What it does
+
+Other Soroban tools estimate cost, forecast rent or meter tests. BudgetGate is built for one job, gating pull requests on measured cost:
+
+- **Per function:** CPU instructions, read and write bytes, and read and write entries for each call in a fixture.
+- **Each commit's own code:** an example workflow builds and deploys the contract, so a pull request is measured on its own code.
+- **A clear result:** exit code `1` is a regression and `2` means the run could not measure, so CI never confuses the two. An archived contract stops the run instead of reporting a restore as a regression.
+- **Live limits:** network caps are read from the RPC on every run, never hardcoded.
+- **History:** snapshots are kept on a branch and charted on the [dashboard](https://budgetgate-dashboard.vercel.app/).
+
+Run on real pull requests in the public [test repository](https://github.com/BudgetGate/budgetgate-action-test). Early-stage: not audited and not production-ready.
+
+## What it is not
 
 It does not do static analysis or vulnerability scanning. For that, see [Scout-Soroban](https://github.com/CoinFabrik/scout-soroban).
 
