@@ -27,7 +27,7 @@ One of `--fixture` or `--new` is required. Negative threshold values are rejecte
 |---|---|
 | `0` | No regression. Also `-h`. |
 | `1` | At least one metric regressed, or a cap warning with `--fail-on-cap-warning`. |
-| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, a fixture or `--new` snapshot that repeats a function name, an RPC failure, or a `--output-json` file that could not be written. |
+| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, a fixture or `--new` snapshot that repeats a function name, a call whose simulation would restore [archived state](./documentation#archived-contract-state) (after v0.2.3), an RPC failure, or a `--output-json` file that could not be written. |
 
 stdout carries only the Markdown report, so it can be redirected or posted as-is. Usage, progress and error messages go to stderr; on an error, stdout is empty, except when only writing `--output-json` failed: the report is printed first, then the run exits `2`.
 
