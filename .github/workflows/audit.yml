@@ -24,5 +24,8 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
+      # Fails if any installed package's registry signature or provenance attestation does not verify.
+      - name: Registry signatures and provenance
+        run: npm audit signatures
       - name: Dependencies, moderate or worse
         run: npm audit --audit-level=moderate
