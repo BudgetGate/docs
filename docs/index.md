@@ -63,7 +63,7 @@ Run on real pull requests in the public [test repository](https://github.com/Bud
 It does not do static analysis or vulnerability scanning. For that, see [Scout-Soroban](https://github.com/CoinFabrik/scout-soroban).
 
 ::: warning Status
-BudgetGate is early-stage software. It has not been audited and is not production-ready. Core's latest release is v0.2.4; the Action's is v0.2.2. The limitations of each part are listed on its pages.
+BudgetGate is early-stage software. It has not been audited and is not production-ready. Core's latest release is v0.2.5; the Action's is v0.2.2. The limitations of each part are listed on its pages.
 :::
 
 ## How it works

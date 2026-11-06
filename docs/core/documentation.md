@@ -66,7 +66,7 @@ delta    = new − baseline
 % change = delta / baseline × 100
 ```
 
-If the baseline value is `0` and the new value is higher, the change counts as 100% for the regression check; after v0.2.4 the report shows `from 0` instead of a percentage. A metric is a regression when `% change > --max-delta-pct`, or when `delta` is above that metric's `--max-*-increase` limit. Absolute limits are per metric because the scales differ: CPU is in the hundreds of thousands, entry counts in single digits.
+If the baseline value is `0` and the new value is higher, the change counts as 100% for the regression check; since v0.2.5 the report shows `from 0` instead of a percentage. A metric is a regression when `% change > --max-delta-pct`, or when `delta` is above that metric's `--max-*-increase` limit. Absolute limits are per metric because the scales differ: CPU is in the hundreds of thousands, entry counts in single digits.
 
 ### Network caps
 

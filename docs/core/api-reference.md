@@ -7,8 +7,8 @@
 | `--baseline` | string | — | **Required.** Path to the baseline snapshot JSON. |
 | `--fixture` | string | — | Path to a fixture JSON. Each entry is simulated over RPC. Takes precedence over `--new`. |
 | `--new` | string | — | Path to an existing snapshot JSON to compare instead of simulating. |
-| `--rpc-url` | string | `SOROBAN_RPC_URL`, else `https://soroban-testnet.stellar.org` | Soroban RPC endpoint. Without the flag, core uses the `SOROBAN_RPC_URL` environment variable when it is set and not empty (after v0.2.4). Messages show only the URL's scheme and host, so a key in its path, query or user part is not printed. |
-| `--version` | bool | — | Prints `budget-core <version>` and exits `0`, with no other flags or network calls. Releases after v0.2.4 report their tag; a local build reports `dev`. |
+| `--rpc-url` | string | `SOROBAN_RPC_URL`, else `https://soroban-testnet.stellar.org` | Soroban RPC endpoint. Without the flag, core uses the `SOROBAN_RPC_URL` environment variable when it is set and not empty (since v0.2.5). Messages show only the URL's scheme and host, so a key in its path, query or user part is not printed. |
+| `--version` | bool | — | Prints `budget-core <version>` and exits `0`, with no other flags or network calls. Releases from v0.2.5 report their tag; a local build reports `dev`. |
 | `--output-json` | string | — | Where to write the new snapshot. If it cannot be written, the run exits `2`. |
 | `--commit-sha` | string | — | The commit of your contract code that was measured. Recorded in the snapshot's `commit_sha` (fixture runs). |
 | `--max-delta-pct` | float | `10` | A metric is a regression when it rises by more than this percentage. `0` turns the check off. |
@@ -109,7 +109,7 @@ Core prints one row per function and metric:
 |----------|--------|----------|-----|-------|----------|----------|--------|
 | balance_check | CPUInstructions | 91406 | 91406 | 0 | 0.00% | 0.02% | ✅ OK |
 
-When a metric rises from a baseline of `0`, `% Change` shows `from 0`, since a percentage of zero is undefined (after v0.2.4; earlier versions show `100.00%`). The regression check is unchanged.
+When a metric rises from a baseline of `0`, `% Change` shows `from 0`, since a percentage of zero is undefined (since v0.2.5; earlier versions show `100.00%`). The regression check is unchanged.
 
 % of Cap uses the network's per-transaction limits at protocol 29, ledger 5406551.
 ```
