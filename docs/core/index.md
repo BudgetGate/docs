@@ -14,12 +14,12 @@ It keeps no state of its own. Every run takes a baseline file and produces a new
 
 ### Download a release
 
-[v0.2.3](https://github.com/BudgetGate/soroban-budget-core/releases/tag/v0.2.3) is the latest release; it rejects a fixture or `--new` snapshot that repeats a function name (exit code `2`), which earlier releases compared against the wrong baseline entry. It has static binaries for Linux, macOS and Windows on x86-64 and arm64, plus one `SHA256SUMS` file covering them: `budget-core-linux-amd64`, `budget-core-linux-arm64`, `budget-core-darwin-amd64`, `budget-core-darwin-arm64`, `budget-core-windows-amd64.exe`, `budget-core-windows-arm64.exe`. Use it rather than v0.2.0, which was built with Go 1.25.14 (known vulnerabilities in its HTTP and TLS libraries). v0.2.1 and later are built with Go 1.26.10 and measure the same.
+[v0.2.4](https://github.com/BudgetGate/soroban-budget-core/releases/tag/v0.2.4) is the latest release; it stops with exit code `2` on a call whose simulation would restore [archived state](./documentation#archived-contract-state), which earlier releases reported as a regression. It also rejects a fixture or `--new` snapshot that repeats a function name (since v0.2.3). It has static binaries for Linux, macOS and Windows on x86-64 and arm64, plus one `SHA256SUMS` file covering them: `budget-core-linux-amd64`, `budget-core-linux-arm64`, `budget-core-darwin-amd64`, `budget-core-darwin-arm64`, `budget-core-windows-amd64.exe`, `budget-core-windows-arm64.exe`. Use it rather than v0.2.0, which was built with Go 1.25.14 (known vulnerabilities in its HTTP and TLS libraries). v0.2.1 and later are built with Go 1.26.10 and measure the same.
 
 Linux and macOS (pick your `ASSET`):
 
 ```bash
-V=v0.2.3; ASSET=budget-core-linux-amd64
+V=v0.2.4; ASSET=budget-core-linux-amd64
 curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/$V/$ASSET
 curl -sSLO https://github.com/BudgetGate/soroban-budget-core/releases/download/$V/SHA256SUMS
 sha256sum -c --ignore-missing SHA256SUMS      # macOS: shasum -a 256 -c --ignore-missing SHA256SUMS
@@ -29,7 +29,7 @@ chmod +x $ASSET && mv $ASSET budget-core
 Windows (PowerShell; the comparison must print `True`):
 
 ```powershell
-$V = 'v0.2.3'; $A = 'budget-core-windows-amd64.exe'
+$V = 'v0.2.4'; $A = 'budget-core-windows-amd64.exe'
 $R = "https://github.com/BudgetGate/soroban-budget-core/releases/download/$V"
 Invoke-WebRequest "$R/$A" -OutFile $A; Invoke-WebRequest "$R/SHA256SUMS" -OutFile SHA256SUMS
 $expected = ((Select-String -Path SHA256SUMS -Pattern " $A$").Line -split '\s+')[0]
@@ -39,7 +39,7 @@ Rename-Item $A budget-core.exe
 
 `--ignore-missing` is needed because `SHA256SUMS` lists all six binaries. v0.2.1 and earlier only include `budget-core-linux-amd64`.
 
-Releases after v0.2.3 also carry a signed build provenance attestation for each binary, proving it was built by the repository's release workflow from the tagged commit. A checksum only shows the download matches the release; the attestation also shows where the release came from. Check it with the GitHub CLI (v0.2.3 and earlier have none, so the command fails for them):
+Releases from v0.2.4 also carry a signed build provenance attestation for each binary, proving it was built by the repository's release workflow from the tagged commit. A checksum only shows the download matches the release; the attestation also shows where the release came from. Check it with the GitHub CLI (v0.2.3 and earlier have none, so the command fails for them):
 
 ```bash
 gh attestation verify budget-core -R BudgetGate/soroban-budget-core

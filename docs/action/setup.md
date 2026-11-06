@@ -1,6 +1,6 @@
 # Workflow Setup
 
-The Action downloads the runner's binary from core's v0.2.3 release with `binary-version: 0.2.3` and checks it against the release's `SHA256SUMS`. Linux, macOS and Windows runners work, on x64 and arm64 (core v0.2.1 and earlier only ship Linux x64). On any other runner, see [Building core yourself](#building-core-yourself).
+The Action downloads the runner's binary from core's v0.2.4 release with `binary-version: 0.2.4` and checks it against the release's `SHA256SUMS`. Linux, macOS and Windows runners work, on x64 and arm64 (core v0.2.1 and earlier only ship Linux x64). On any other runner, see [Building core yourself](#building-core-yourself).
 
 You need a [fixture](/core/api-reference#fixture-format), for example `budget/fixture.json`. A fixture measures whatever contract it calls: with a fixture against a contract you deployed once, a pull request that changes the contract's code is measured on the old deployment and shows no change. To have each pull request measured on its own code, use [Measure each commit's contract code](#measure-each-commit-s-contract-code). The workflow below suits a committed fixture.
 
@@ -28,7 +28,7 @@ jobs:
         uses: BudgetGate/soroban-budget-action@v0.2.2
         with:
           fixture-path: budget/fixture.json
-          binary-version: 0.2.3
+          binary-version: 0.2.4
 ```
 
 `v0.2.2` is the Action's latest [release](https://github.com/BudgetGate/soroban-budget-action/releases/tag/v0.2.2): the same inputs and behaviour as v0.2.1, plus macOS, Windows and Linux arm64 runners, and a cached baseline that Windows runners can restore. Tags are exact: there is no moving `v0` tag, so change the version yourself to upgrade.
@@ -73,7 +73,7 @@ Build the contracts, deploy them to testnet and write the fixture against those 
          - uses: BudgetGate/soroban-budget-action@v0.2.2
            with:
              fixture-path: budget/fixture.json
-             binary-version: 0.2.3
+             binary-version: 0.2.4
    ```
 
 The script creates a throwaway key and funds it with friendbot, so no secrets are needed. Friendbot is then a dependency of every run: when it is down or rate-limited, the check fails. To avoid that, create a testnet account, fund it once, and store its secret key as a repository secret named `BUDGET_GATE_SECRET_KEY`; the example workflow passes it to the script, which then pays from that account and creates any `ACCOUNTS` with 10 XLM each from it. It holds only testnet funds, but treat it as a secret anyway. After a testnet reset wipes the account, the next run funds it once with friendbot. The script also retries testnet steps that time out. Because every run deploys fresh contracts, a testnet reset does not break it. Fixture calls are simulated, never submitted, so every call sees the contracts' storage as it is right after deployment (constructors have run). To measure a function with state in place (balances, an initialised config), add real `stellar contract invoke` commands without `--build-only` to the script after the deploys and before the fixture is written. A call that needs authorization works from `{ADDRESS}` (the transaction's source) and from any account in `ACCOUNTS`: the simulation records the authorization, including the other account's signature check and nonce. In the test repository a `deposit` measured 411,511 CPU instructions from the source and 1,258,736 from a second funded account, which used 1,233,282 when executed; read and write entries matched. The account must exist: authorization by an account that was never funded simulated at 497,093, which no real call can match, so list it in `ACCOUNTS` rather than typing an unfunded address.
@@ -92,7 +92,7 @@ If you'd rather keep the baseline in the repository, create it locally as shown 
 
 ```yaml
         with:
-          binary-version: 0.2.3
+          binary-version: 0.2.4
           baseline-path: budget/baseline.json
           fixture-path: budget/fixture.json
 ```
