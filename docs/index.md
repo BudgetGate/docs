@@ -47,7 +47,7 @@ Teams building on Soroban keep writing this task for themselves:
 
 ## What it does
 
-Other tools also compare Soroban costs. BudgetGate measures through a Soroban RPC on testnet, so it needs no local network, runs on any GitHub-hosted platform, and keeps the history:
+Other tools also compare Soroban costs. BudgetGate measures through a Soroban RPC on testnet, so it needs no local network, ships binaries for Linux, macOS and Windows, and keeps the history:
 
 - **Per function:** CPU instructions, read and write bytes, and read and write entries for each call in a fixture.
 - **Each commit's own code:** an example workflow builds and deploys the contract, so a pull request is measured on its own code.
