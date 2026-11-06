@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: "BudgetGate"
-  text: "Soroban Resource Budget Guard"
+  text: "Soroban resource-cost regression checks"
   tagline: "Fail a pull request when a Soroban contract function gets more expensive, using costs measured on a real network."
   actions:
     - theme: brand
