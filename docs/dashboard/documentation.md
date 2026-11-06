@@ -26,7 +26,7 @@ Every history, including the built-in sample, is checked before anything is draw
 
 A 403 or 429 response is shown as **RATE_LIMITED** instead of an error when GitHub's rate-limit rules apply: `x-ratelimit-remaining` is `0`, `retry-after` is set, the status is 429, or the message names a rate limit. The page shows when to try again, taken from `x-ratelimit-reset` or `retry-after`, if the response gave one. Any other 403 is shown as an error. Requests are not retried automatically.
 
-Other errors are shown in place of the charts.
+Other errors are shown in place of the charts. A request that fails shows its HTTP status, for example `Failed to fetch history: HTTP 404`, and a URL that returns something other than JSON, such as a web page, says so and asks you to check that it points to a `history.json` file (after dashboard #77; earlier builds showed an empty status or the parser's raw message).
 
 A `github://` history is reused for as long as GitHub's `Cache-Control: max-age` says it is fresh (60 seconds on the Contents API). Without a token, even a conditional request answered with 304 Not Modified costs one of the 60 requests per hour, so the page does not ask again within that time. Above the charts it says when the history was fetched and until when a refresh reuses it. A history that fails its checks is not kept. The refresh button reloads even when the URL is unchanged.
 
