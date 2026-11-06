@@ -1,6 +1,6 @@
 export default {
   title: 'BudgetGate',
-  description: 'Soroban Resource Budget Guard',
+  description: 'Fail a pull request when a Soroban contract function gets more expensive, using costs measured on a real network.',
   base: '/docs/',
   themeConfig: {
     nav: [

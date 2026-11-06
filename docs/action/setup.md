@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Run Soroban Budget Guard
+      - name: Run Budget Gate
         uses: BudgetGate/soroban-budget-action@v0.2.2
         with:
           fixture-path: budget/fixture.json
@@ -113,7 +113,7 @@ On a runner `binary-version` does not cover, or to run core's latest code, build
           git clone --depth 1 https://github.com/BudgetGate/soroban-budget-core.git "$RUNNER_TEMP/core"
           cd "$RUNNER_TEMP/core" && go build -o budget-core .
 
-      - name: Run Soroban Budget Guard
+      - name: Run Budget Gate
         uses: BudgetGate/soroban-budget-action@v0.2.2
         with:
           binary-path: ${{ runner.temp }}/core/budget-core
