@@ -20,7 +20,7 @@
 | `--cap-warning-pct` | float | `80` | Show `⚠️ CAP WARNING` when a metric is above this percentage of the network's per-transaction cap. `0` turns it off. |
 | `--fail-on-cap-warning` | bool | off | Exit `1` when any metric has a cap warning. Needs `--cap-warning-pct` above `0`. |
 
-One of `--fixture` or `--new` is required. Negative threshold values are rejected with exit code `2`. A metric regresses if it breaks either its percentage limit or its absolute limit.
+One of `--fixture` or `--new` is required. Negative threshold values are rejected with exit code `2`, and so are `NaN` and infinite ones in the release after v0.2.5 (not released yet; v0.2.5 and earlier accept `NaN`, which silently turns the check off). A metric regresses if it breaks either its percentage limit or its absolute limit.
 
 ## Exit codes
 
@@ -28,7 +28,7 @@ One of `--fixture` or `--new` is required. Negative threshold values are rejecte
 |---|---|
 | `0` | No regression. Also `-h`. |
 | `1` | At least one metric regressed, or a cap warning with `--fail-on-cap-warning`. |
-| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, a fixture or `--new` snapshot that repeats a function name, a call whose simulation would restore [archived state](./documentation#archived-contract-state) (since v0.2.4), an RPC failure, or a `--output-json` file that could not be written. |
+| `2` | The run could not compare: missing or undefined flags, an unreadable or invalid file, an unsupported `schema_version`, a fixture or `--new` snapshot that repeats a function name, a call whose simulation would restore [archived state](./documentation#archived-contract-state) (since v0.2.4), an RPC failure (from the release after v0.2.5, also an RPC response over 16 MiB), a `NaN` or infinite threshold (after v0.2.5), or a `--output-json` file that could not be written. |
 
 stdout carries only the Markdown report, so it can be redirected or posted as-is. Usage, progress and error messages go to stderr; on an error, stdout is empty, except when only writing `--output-json` failed: the report is printed first, then the run exits `2`.
 
@@ -128,3 +128,8 @@ Metrics compared: `CPUInstructions`, `ReadBytes`, `WriteBytes`, `ReadEntries`, `
 | `🗑️ REMOVED` | The function is in the baseline but not in the new snapshot. One row with `—` as the metric. Never fails the run. |
 
 A renamed function shows up as one `🆕 NEW` function and one `🗑️ REMOVED` function.
+
+From the release after v0.2.5 (not released yet):
+
+- **Function names are escaped** in the table: `\`, `|`, backticks, `[`, `]`, `&`, `<`, `>` and line breaks. A fixture can come from a pull request, and the report is posted as a PR comment, so a name could otherwise add rows, HTML, images or a fake status. Ordinary names look the same. A bare URL in a name is still shown as a link.
+- **A baseline from another network** is not compared. When the baseline and the new snapshot both record a `network` and they differ, core prints a warning on stderr, adds `The baseline was measured on <network>, not <network>, so every function is compared as new.` under the table, and reports every function as `🆕 NEW` (exit `0` unless a cap warning fails the run). The next baseline saved from that run is from the right network, so the Action recovers on its next default-branch run. Snapshots with an empty `generated_at` (written by older versions of core, which always said `"testnet"`) count as an unknown network and are compared as before.
